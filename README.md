@@ -4,7 +4,7 @@ SwiftWamp is a WAMP implementation in Swift.
 
 It currently supports calling remote procedures, subscribing on topics, and publishing events. It also supports authentication using ticket & wampcra authentication.
 
-SwiftWamp `0.1.0` utilizes WebSockets as its only available transport, and JSON as its serialization method.
+SwiftWamp `0.2.0` utilizes WebSockets as its only available transport, and JSON as its serialization method.
 
 Contributions to support MessagePack & Raw Sockets will be merged gladly!
 
