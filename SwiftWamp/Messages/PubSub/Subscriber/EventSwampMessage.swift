@@ -11,14 +11,14 @@ import Foundation
 /// [EVENT, subscription|number, publication|number, details|dict, args|list?, kwargs|dict?]
 class EventSwampMessage: SwampMessage {
     
-    let subscription: Int
-    let publication: Int
+    let subscription: NSNumber
+    let publication: NSNumber
     let details: [String: AnyObject]
     
     let args: [AnyObject]?
     let kwargs: [String: AnyObject]?
     
-    init(subscription: Int, publication: Int, details: [String: AnyObject], args: [AnyObject]?=nil, kwargs: [String: AnyObject]?=nil) {
+    init(subscription: NSNumber, publication: NSNumber, details: [String: AnyObject], args: [AnyObject]?=nil, kwargs: [String: AnyObject]?=nil) {
         self.subscription = subscription
         self.publication = publication
         self.details = details
@@ -30,8 +30,8 @@ class EventSwampMessage: SwampMessage {
     // MARK: SwampMessage protocol
     
     required init(payload: [Any]) {
-        self.subscription = payload[0] as! Int
-        self.publication = payload[1] as! Int
+        self.subscription = (payload[0] as! NSNumber)
+        self.publication = (payload[1] as! NSNumber)
         self.details = payload[2] as! [String: AnyObject]
         self.args = payload[safe: 3] as? [AnyObject]
         self.kwargs = payload[safe: 4] as? [String: AnyObject]

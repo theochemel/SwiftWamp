@@ -12,9 +12,9 @@ import Foundation
 class UnregisterSwampMessage: SwampMessage {
     
     let requestId: Int
-    let registration: Int
+    let registration: NSNumber
     
-    init(requestId: Int, registration: Int) {
+    init(requestId: Int, registration: NSNumber) {
         self.requestId = requestId
         self.registration = registration
     }
@@ -23,7 +23,7 @@ class UnregisterSwampMessage: SwampMessage {
     
     required init(payload: [Any]) {
         self.requestId = payload[0] as! Int
-        self.registration = payload[1] as! Int
+        self.registration = payload[1] as! NSNumber
     }
     
     func marshal() -> [Any] {

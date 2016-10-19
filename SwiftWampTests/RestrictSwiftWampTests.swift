@@ -21,7 +21,7 @@ class RestrictSwiftWampTests: XCTestCase, SwampSessionDelegate {
 
     var transport: WebSocketSwampTransport?
     var session: SwampSession?
-    var sessionID: Int? = nil
+    var sessionID: NSNumber? = nil
     var subscription: [String: Subscription] = [:]
 
     var expectation: [String: XCTestExpectation] = [:]
@@ -86,7 +86,7 @@ class RestrictSwiftWampTests: XCTestCase, SwampSessionDelegate {
         return SwampCraAuthHelper.sign(self.craSecret, challenge: extra["challenge"] as! String)
     }
 
-    func swampSessionConnected(_ session: SwampSession, sessionId: Int) {
+    func swampSessionConnected(_ session: SwampSession, sessionId: NSNumber) {
         self.sessionID = sessionId
 
         if self.craSecret != self.goodCraSecret {

@@ -12,10 +12,10 @@ import SwiftyJSON
 /// [WELCOME, sessionId|number, details|Dict]
 class WelcomeSwampMessage: SwampMessage {
     
-    let sessionId: Int
+    let sessionId: NSNumber
     let details: [String: AnyObject]
     
-    init(sessionId: Int, details: [String: AnyObject]) {
+    init(sessionId: NSNumber, details: [String: AnyObject]) {
         self.sessionId = sessionId
         self.details = details
     }
@@ -23,7 +23,8 @@ class WelcomeSwampMessage: SwampMessage {
     // MARK: SwampMessage protocol
     
     required init(payload: [Any]) {
-        self.sessionId = payload[0] as! Int
+        self.sessionId = payload[0] as! NSNumber
+
         self.details = payload[1] as! [String: AnyObject]
     }
     

@@ -21,7 +21,7 @@ class SwiftWampTests: XCTestCase, SwampSessionDelegate {
     let authMethods: [String] = ["anonymous"]
 
     var session: SwampSession?
-    var sessionID: Int? = nil
+    var sessionID: NSNumber? = nil
     var subscription: [String: Subscription] = [:]
 
     var expectation: [String: XCTestExpectation] = [:]
@@ -135,10 +135,13 @@ class SwiftWampTests: XCTestCase, SwampSessionDelegate {
     }
 
     func successSubscribeHeartbeatCallback(_ subscription: Subscription) -> Void {
+        print("Subscribe succeded ============================")
         self.subscription["org.swamp.heartbeat"] = subscription
+        print(subscription)
     }
 
     func errorSubscribeHeartbeatCallback(_ details: [String: Any], _ error: String) -> Void {
+        print("Subscribe failed ============================")
         XCTFail()
         self.expectation["heartbeatSubscribe"]?.fulfill()
     }
@@ -146,8 +149,12 @@ class SwiftWampTests: XCTestCase, SwampSessionDelegate {
     func eventSubscribeHeartbeatCallback(_ details: [String: Any], _ results: [Any]?, _ kwResults: [String: Any]?) -> Void {
         XCTAssertEqual(results![0] as! String, "Heartbeat!")
         self.subscription["org.swamp.heartbeat"]?.cancel({
+            print("HERE =================================")
             self.expectation["heartbeatSubscribe"]?.fulfill()
         }, onError: { details, error in
+            print(details)
+            print(error)
+            print("ERROR =================================")
             XCTFail()
         })
     }
@@ -174,8 +181,9 @@ class SwiftWampTests: XCTestCase, SwampSessionDelegate {
         return ""
     }
 
-    func swampSessionConnected(_ session: SwampSession, sessionId: Int) {
+    func swampSessionConnected(_ session: SwampSession, sessionId: NSNumber) {
         self.sessionID = sessionId
+        print("===========+++++++++++++++++++++++++++=============" + String(describing: sessionId))
         self.expectation["connectionProcessEnded"]?.fulfill()
     }
 

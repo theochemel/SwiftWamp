@@ -12,13 +12,13 @@ import Foundation
 class InvocationSwampMessage: SwampMessage {
     
     let requestId: Int
-    let registration: Int
+    let registration: NSNumber
     let details: [String: AnyObject]
     
     let args: [AnyObject]?
     let kwargs: [String: AnyObject]?
     
-    init(requestId: Int, registration: Int, details: [String: AnyObject], args: [AnyObject]?=nil, kwargs: [String: AnyObject]?=nil) {
+    init(requestId: Int, registration: NSNumber, details: [String: AnyObject], args: [AnyObject]?=nil, kwargs: [String: AnyObject]?=nil) {
         self.requestId = requestId
         self.registration = registration
         self.details = details
@@ -31,7 +31,7 @@ class InvocationSwampMessage: SwampMessage {
     
     required init(payload: [Any]) {
         self.requestId = payload[0] as! Int
-        self.registration = payload[1] as! Int
+        self.registration = payload[1] as! NSNumber
         self.details = payload[2] as! [String: AnyObject]
         self.args = payload[safe: 3] as? [AnyObject]
         self.kwargs = payload[safe: 4] as? [String: AnyObject]
