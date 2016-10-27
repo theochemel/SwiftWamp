@@ -104,6 +104,20 @@
                         },
                         "url": "ws://127.0.0.1:8080/ws"
                     }
+                },
+                {
+                    "type": "class",
+                    "classname": "LoopingPublish.LoopingPublish",
+                    "realm": "open-realm",
+                    "transport": {
+                        "type": "websocket",
+                        "endpoint": {
+                            "type": "tcp",
+                            "host": "127.0.0.1",
+                            "port": 8080
+                        },
+                        "url": "ws://127.0.0.1:8080/ws"
+                    }
                 }
             ]
         }

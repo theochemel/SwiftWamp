@@ -1,22 +1,37 @@
-from twisted.internet.defer import inlineCallbacks
-from twisted.internet.task import LoopingCall
+import sys
+from autobahn import wamp
 from autobahn.twisted.wamp import ApplicationSession
+from twisted.internet.defer import inlineCallbacks
+
 
 class OpenRealmSession(ApplicationSession):
+    usernames = ["pok", "root", "Dany", "Yossi"]
+
     @inlineCallbacks
     def onJoin(self, details):
-        def heartbeat():
-            return self.publish(u'org.swamp.heartbeat', 'Heartbeat!')
+        try:
+            yield self.register(self)
+        except Exception as e:
+            print("Failed to register topic in OpenRealmSession : {0}".format(e), file=sys.stderr)
+        return
 
-        LoopingCall(heartbeat).start(1)
+    @wamp.register('org.swamp.add')
+    def add(self, num1, num2):
+        return num1 + num2
 
-        def add(num1, num2):
-            return num1 + num2
+    @wamp.register('org.swamp.echo')
+    def echo(self, param1, param2):
+        return param1, param2
 
-        yield self.register(add, u"org.swamp.add")
+    @wamp.register('user.username.available')
+    def username_available(self, **kwargs):
+        if kwargs["username"] in self.usernames:
+            return False, None
+        return True, None
 
-        def echo(param1, param2):
-            return param1, param2
 
-        yield self.register(echo, u"org.swamp.echo")
-    
+    @wamp.register('user.username.unavailable')
+    def username_unavailable(self, **kwargs):
+        if kwargs["username"] in self.usernames:
+            return True
+        return False

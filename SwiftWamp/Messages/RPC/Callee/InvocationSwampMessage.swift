@@ -13,12 +13,12 @@ class InvocationSwampMessage: SwampMessage {
     
     let requestId: Int
     let registration: NSNumber
-    let details: [String: AnyObject]
+    let details: [String: Any]
     
-    let args: [AnyObject]?
-    let kwargs: [String: AnyObject]?
+    let args: [Any]?
+    let kwargs: [String: Any]?
     
-    init(requestId: Int, registration: NSNumber, details: [String: AnyObject], args: [AnyObject]?=nil, kwargs: [String: AnyObject]?=nil) {
+    init(requestId: Int, registration: NSNumber, details: [String: Any], args: [Any]?=nil, kwargs: [String: Any]?=nil) {
         self.requestId = requestId
         self.registration = registration
         self.details = details
@@ -32,9 +32,9 @@ class InvocationSwampMessage: SwampMessage {
     required init(payload: [Any]) {
         self.requestId = payload[0] as! Int
         self.registration = payload[1] as! NSNumber
-        self.details = payload[2] as! [String: AnyObject]
-        self.args = payload[safe: 3] as? [AnyObject]
-        self.kwargs = payload[safe: 4] as? [String: AnyObject]
+        self.details = payload[2] as! [String: Any]
+        self.args = payload[safe: 3] as? [Any]
+        self.kwargs = payload[safe: 4] as? [String: Any]
     }
     
     func marshal() -> [Any] {

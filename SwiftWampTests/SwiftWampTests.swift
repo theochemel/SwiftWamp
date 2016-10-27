@@ -183,7 +183,6 @@ class SwiftWampTests: XCTestCase, SwampSessionDelegate {
 
     func swampSessionConnected(_ session: SwampSession, sessionId: NSNumber) {
         self.sessionID = sessionId
-        print("===========+++++++++++++++++++++++++++=============" + String(describing: sessionId))
         self.expectation["connectionProcessEnded"]?.fulfill()
     }
 
@@ -201,4 +200,33 @@ class SwiftWampTests: XCTestCase, SwampSessionDelegate {
         // Unexpected disconnection
         XCTFail()
     }
+
+    func testKwargsCallFailed() {
+        /**
+         Test add remote call with a single param
+         */
+        self.expectation["usernameCallFailed"] = expectation(description: "usernameCallFailed")
+//        var pok: String?
+//        pok = "lol"
+        session?.call("user.username.available", kwargs: ["username": NSNull()], onSuccess: { details, results, kwResults in
+            // Can't return a success
+//            XCTFail()
+            print(results)
+            if (results?[0] as! NSArray)[0] as! Bool == true {
+//            if (results![0] as! [Any])[0] as! Bool  == true {
+                print("nique ta mere le swift")
+            }
+            self.expectation["usernameCallFailed"]?.fulfill()
+            }, onError: { details, error, args, kwargs in
+                // An error is expected
+                XCTFail()
+//                XCTAssertEqual(error, "wamp.error.runtime_error")
+//                XCTAssertEqual(args![0] as! String, "add() missing 1 required positional argument: 'num2'")
+                self.expectation["usernameCallFailed"]?.fulfill()
+        })
+        waitForExpectations(timeout: 10, handler: { error in
+            XCTAssertNil(error)
+        })
+    }
+
 }

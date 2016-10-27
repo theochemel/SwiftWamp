@@ -1,6 +1,9 @@
 
 # Created by https://www.gitignore.io/api/o,osx,xcode,appcode
 
+node.pid
+__pycache__
+
 #!! ERROR: o is undefined. Use list command to see defined gitignore types !!#
 
 ### OSX ###
