@@ -11,5 +11,4 @@ import Foundation
 protocol SwampMessage {
     init(payload: [Any])
     func marshal() -> [Any]
-//    func nonOptionalMarshal() -> [Any]
 }
