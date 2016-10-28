@@ -21,10 +21,11 @@ Pod::Spec.new do |s|
 the WAMP WebSocket subprotocol implemented purely in Swift using Starscream, SwiftyJSON & SwiftPack
                        DESC
 
-  s.homepage         = 'https://gitlab.com/danysousa/SwiftWamp'
-  s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Yossi Abraham' => 'yo.ab@outlook.com', 'Dany Sousa' => 'danysousa@protonmail.com' }
-  s.source           = { :git => 'https://gitlab.com/danysousa/SwiftWamp.git', :tag => s.version.to_s }
+  s.homepage          = 'https://gitlab.com/danysousa/SwiftWamp'
+  s.license           = { :type => 'MIT', :file => 'LICENSE' }
+  s.author            = { 'Yossi Abraham' => 'yo.ab@outlook.com', 'Dany Sousa' => 'danysousa@protonmail.com' }
+  s.source            = { :git => 'https://gitlab.com/danysousa/SwiftWamp.git', :tag => s.version.to_s }
+  s.documentation_url = 'https://gitlab.com/danysousa/SwiftWamp/wikis/home'
 
   s.platform = :ios, '8.0'
   s.ios.deployment_target = '8.0'

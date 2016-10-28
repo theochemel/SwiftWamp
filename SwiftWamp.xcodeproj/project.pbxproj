@@ -28,6 +28,7 @@
 		D6FDF4ED9D0593D53AAC9AE4 /* GoodbyeSwampMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FDF68343304DDBE9CB9FC5 /* GoodbyeSwampMessage.swift */; };
 		D6FDF5E6B63E84B63F249D4D /* PublishSwampMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FDF9215DBA2C652EC4E5B7 /* PublishSwampMessage.swift */; };
 		D6FDF6B97A90312C8D2E5B21 /* YieldSwampMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FDF6FF7E6FE6E0434F5F9D /* YieldSwampMessage.swift */; };
+		D6FDF6E5A32349021C723DD6 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FDFF0F77C89C9AB29A8734 /* Subscription.swift */; };
 		D6FDF774D9E59BB158C1E621 /* CallSwampMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FDFC4B8D6A4932ACEEE98A /* CallSwampMessage.swift */; };
 		D6FDF784467DF8FE40A6D803 /* RegisterSwampMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FDFDE10F9FCC347C18F4EA /* RegisterSwampMessage.swift */; };
 		D6FDF791180A3CDB7E9DAF99 /* SwampSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6FDF6CC85F08C7CAAD19139 /* SwampSession.swift */; };
@@ -107,6 +108,7 @@
 		D6FDFDE10F9FCC347C18F4EA /* RegisterSwampMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegisterSwampMessage.swift; sourceTree = "<group>"; };
 		D6FDFE00CDE843721B13DB7F /* ErrorSwampMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorSwampMessage.swift; sourceTree = "<group>"; };
 		D6FDFEA44549E2040D7D0D2F /* SwampMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwampMessage.swift; sourceTree = "<group>"; };
+		D6FDFF0F77C89C9AB29A8734 /* Subscription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
 		D6FDFF114450291854670155 /* ChallengeSwampMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChallengeSwampMessage.swift; sourceTree = "<group>"; };
 		D6FDFF58CB7DEEEB4FB3608F /* WebSocketSwampTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebSocketSwampTransport.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -174,6 +176,7 @@
 				D6FDF104687A89D00CE25549 /* Extensions.swift */,
 				D6FDF3AD747504B67ACC8446 /* SwampRole.swift */,
 				D6FDF6CC85F08C7CAAD19139 /* SwampSession.swift */,
+				D6FDFF0F77C89C9AB29A8734 /* Subscription.swift */,
 			);
 			path = SwiftWamp;
 			sourceTree = "<group>";
@@ -581,6 +584,7 @@
 				D6FDF9E180728C68FBD50F00 /* SwampTransport.swift in Sources */,
 				D6FDFF49FBDC1A533562A0CD /* WebSocketSwampTransport.swift in Sources */,
 				D6FDF791180A3CDB7E9DAF99 /* SwampSession.swift in Sources */,
+				D6FDF6E5A32349021C723DD6 /* Subscription.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

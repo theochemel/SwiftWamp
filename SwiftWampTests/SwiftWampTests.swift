@@ -15,7 +15,6 @@ import XCTest
  */
 
 class SwiftWampTests: XCTestCase, SwampSessionDelegate {
-
     let socketUrl: String = "ws://localhost:8080/ws"
     let defaultRealm: String = "open-realm"
     let authMethods: [String] = ["anonymous"]
@@ -135,13 +134,11 @@ class SwiftWampTests: XCTestCase, SwampSessionDelegate {
     }
 
     func successSubscribeHeartbeatCallback(_ subscription: Subscription) -> Void {
-        print("Subscribe succeded ============================")
         self.subscription["org.swamp.heartbeat"] = subscription
         print(subscription)
     }
 
     func errorSubscribeHeartbeatCallback(_ details: [String: Any], _ error: String) -> Void {
-        print("Subscribe failed ============================")
         XCTFail()
         self.expectation["heartbeatSubscribe"]?.fulfill()
     }
@@ -149,12 +146,8 @@ class SwiftWampTests: XCTestCase, SwampSessionDelegate {
     func eventSubscribeHeartbeatCallback(_ details: [String: Any], _ results: [Any]?, _ kwResults: [String: Any]?) -> Void {
         XCTAssertEqual(results![0] as! String, "Heartbeat!")
         self.subscription["org.swamp.heartbeat"]?.cancel({
-            print("HERE =================================")
             self.expectation["heartbeatSubscribe"]?.fulfill()
         }, onError: { details, error in
-            print(details)
-            print(error)
-            print("ERROR =================================")
             XCTFail()
         })
     }
@@ -206,23 +199,12 @@ class SwiftWampTests: XCTestCase, SwampSessionDelegate {
          Test add remote call with a single param
          */
         self.expectation["usernameCallFailed"] = expectation(description: "usernameCallFailed")
-//        var pok: String?
-//        pok = "lol"
-        session?.call("user.username.available", kwargs: ["username": NSNull()], onSuccess: { details, results, kwResults in
-            // Can't return a success
-//            XCTFail()
-            print(results)
-            if (results?[0] as! NSArray)[0] as! Bool == true {
-//            if (results![0] as! [Any])[0] as! Bool  == true {
-                print("nique ta mere le swift")
-            }
+        session?.call("user.username.available", kwargs: ["username": "gerard"], onSuccess: { details, results, kwResults in
+            // Result expected
             self.expectation["usernameCallFailed"]?.fulfill()
             }, onError: { details, error, args, kwargs in
-                // An error is expected
+                // Can't return an error
                 XCTFail()
-//                XCTAssertEqual(error, "wamp.error.runtime_error")
-//                XCTAssertEqual(args![0] as! String, "add() missing 1 required positional argument: 'num2'")
-                self.expectation["usernameCallFailed"]?.fulfill()
         })
         waitForExpectations(timeout: 10, handler: { error in
             XCTAssertNil(error)
