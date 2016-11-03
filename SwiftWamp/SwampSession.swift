@@ -128,6 +128,7 @@ open class SwampSession: SwampTransportDelegate {
     fileprivate let authid: String?
     fileprivate let authrole: String?
     fileprivate let authextra: [String: Any]?
+    fileprivate var autoReconnect: Bool = false
 
     // MARK: State members
     fileprivate var currRequestId: Int = 1
@@ -198,7 +199,8 @@ open class SwampSession: SwampTransportDelegate {
      When the connection process is finished, SwampSession call the appropriate SwampSessionDelegate method
      SwampSession is informed by SwampTransportDelegate if the connection failed or succeed
      */
-    final public func connect() {
+    final public func connect(autoReconnect: Bool = false) {
+        self.autoReconnect = autoReconnect
         self.transport.connect()
     }
 
@@ -385,6 +387,9 @@ open class SwampSession: SwampTransportDelegate {
             self.delegate?.swampSessionEnded("Unexpected error: \(error!.description)")
         } else {
             self.delegate?.swampSessionEnded("Unknown error.")
+            if self.autoReconnect {
+                self.connect()
+            }
         }
     }
 
