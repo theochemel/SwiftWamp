@@ -138,12 +138,12 @@ class SwiftWampTests: XCTestCase, SwampSessionDelegate {
         print(subscription)
     }
 
-    func errorSubscribeHeartbeatCallback(_ details: [String: Any], _ error: String) -> Void {
+    func errorSubscribeHeartbeatCallback(details: [String: Any], error: String) -> Void {
         XCTFail()
         self.expectation["heartbeatSubscribe"]?.fulfill()
     }
 
-    func eventSubscribeHeartbeatCallback(_ details: [String: Any], _ results: [Any]?, _ kwResults: [String: Any]?) -> Void {
+    func eventSubscribeHeartbeatCallback(details: [String: Any], results: [Any]?, kwResults: [String: Any]?) -> Void {
         XCTAssertEqual(results![0] as! String, "Heartbeat!")
         self.subscription["org.swamp.heartbeat"]?.cancel({
             self.expectation["heartbeatSubscribe"]?.fulfill()

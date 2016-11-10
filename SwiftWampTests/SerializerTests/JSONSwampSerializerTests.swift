@@ -24,12 +24,8 @@ class JSONSwampSerializerTests: XCTestCase {
     }
 
     func testPackWithInvalidData() {
-        var data: [Any] = [NSNumber(value: 12).int64Value]
-        var result = self.serializer!.pack(data)
-        XCTAssertNil(result)
-
-        data = [("a", "b")]
-        result = self.serializer!.pack(data)
+        let data: [Any] = [("a", "b")]
+        let result = self.serializer!.pack(data)
         XCTAssertNil(result)
     }
 

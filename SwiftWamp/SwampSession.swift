@@ -13,7 +13,7 @@ import SwiftyJSON
  - Parameter results: An optional [Any] containing all your results
  - Parameter kwResults: [String: Any] Your result indexing by keyString
  */
-public typealias CallCallback = (_ details: [String: Any], _ results: [Any]?, _ kwResults: [String: Any]?) -> Void
+public typealias CallCallback = (_: [String: Any], _: [Any]?, _: [String: Any]?) -> Void
 
 /**
  ErrorCallCallback is a typealias for fail call callback
@@ -23,7 +23,7 @@ public typealias CallCallback = (_ details: [String: Any], _ results: [Any]?, _ 
  - Parameter args: An optional [Any] containing all your args
  - Parameter kwargs: [String: Any] Your args indexing by keyString
  */
-public typealias ErrorCallCallback = (_ details: [String: Any], _ error: String, _ args: [Any]?, _ kwargs: [String: Any]?) -> Void
+public typealias ErrorCallCallback = (_: [String: Any], _: String, _: [Any]?, _: [String: Any]?) -> Void
 
 // MARK: Callee callbacks
 // For now callee is irrelevant
@@ -47,7 +47,7 @@ public typealias SubscribeCallback = (_ subscription: Subscription) -> Void
  - Parameter details: A [String:Any] containing details about your subscribe request
  - Parameter error: A String containing error message
  */
-public typealias ErrorSubscribeCallback = (_ details: [String: Any], _ error: String) -> Void
+public typealias ErrorSubscribeCallback = (_: [String: Any], _: String) -> Void
 
 /**
  EventCallback is called for each published event on the topic
@@ -56,7 +56,7 @@ public typealias ErrorSubscribeCallback = (_ details: [String: Any], _ error: St
  - Parameter result: An optional [Any] containing all the parameters of the published event
  - Parameter kwResults: [String: Any] Your args indexing by keyString
  */
-public typealias EventCallback = (_ details: [String: Any], _ results: [Any]?, _ kwResults: [String: Any]?) -> Void
+public typealias EventCallback = (_: [String: Any], _: [Any]?, _: [String: Any]?) -> Void
 
 /**
  UnsubscribeCallback is called when your unsubscribe request succeeded
@@ -69,7 +69,7 @@ public typealias UnsubscribeCallback = () -> Void
  - Parameter details: A [String: Any] containing details about your subscribe request
  - Parameter error: A String containing error message
  */
-public typealias ErrorUnsubscribeCallback = (_ details: [String: Any], _ error: String) -> Void
+public typealias ErrorUnsubscribeCallback = (_: [String: Any], _: String) -> Void
 
 // MARK: Publish callbacks
 
@@ -84,7 +84,7 @@ public typealias PublishCallback = () -> Void
  - Parameter details: A [String: Any] containing details about your publish request
  - Parameter error: A String containing error message
  */
-public typealias ErrorPublishCallback = (_ details: [String: Any], _ error: String) -> Void
+public typealias ErrorPublishCallback = (_: [String: Any], _: String) -> Void
 
 // TODO: Expose only an interface (like Cancellable) to user
 
