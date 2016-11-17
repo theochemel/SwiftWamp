@@ -11,6 +11,7 @@ import Foundation
 /// [CALL, requestId|number, options|dict, proc|string, args|array?, kwargs|dict?]
 class CallSwampMessage: SwampMessage {
 
+    let type: SwampMessageType = .call
     let requestId: Int
     let options: [String: Any]
     let proc: String
@@ -36,7 +37,7 @@ class CallSwampMessage: SwampMessage {
     }
 
     func marshal() -> [Any] {
-        var marshalled: [Any] = [SwampMessages.call.rawValue, self.requestId, self.options, self.proc]
+        var marshalled: [Any] = [self.type.rawValue, self.requestId, self.options, self.proc]
 
         if let args = self.args {
             marshalled.append(args)

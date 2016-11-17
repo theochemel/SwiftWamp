@@ -12,6 +12,7 @@ import SwiftyJSON
 /// [AUTHENTICATE, signature|string, extra|dict]
 class AuthenticateSwampMessage: SwampMessage {
 
+    let type: SwampMessageType = .authenticate
     let signature: String
     let extra: [String: Any]
 
@@ -28,6 +29,6 @@ class AuthenticateSwampMessage: SwampMessage {
     }
 
     func marshal() -> [Any] {
-        return [SwampMessages.authenticate.rawValue, self.signature, self.extra]
+        return [self.type.rawValue, self.signature, self.extra]
     }
 }

@@ -12,6 +12,7 @@ import SwiftyJSON
 /// [WELCOME, sessionId|number, details|Dict]
 class WelcomeSwampMessage: SwampMessage {
 
+    let type: SwampMessageType = .welcome
     let sessionId: NSNumber
     let details: [String: Any]
 
@@ -29,6 +30,6 @@ class WelcomeSwampMessage: SwampMessage {
     }
 
     func marshal() -> [Any] {
-        return [SwampMessages.welcome.rawValue, self.sessionId, self.details]
+        return [self.type.rawValue, self.sessionId, self.details]
     }
 }

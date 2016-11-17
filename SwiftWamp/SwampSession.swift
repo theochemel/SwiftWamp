@@ -147,6 +147,7 @@ open class SwampSession: SwampTransportDelegate {
     fileprivate var subscribeRequests: [Int: (callback: SubscribeCallback, errorCallback: ErrorSubscribeCallback, eventCallback: EventCallback)] = [:]
     //                          subscription
     fileprivate var subscriptions: [NSNumber: Subscription] = [:]
+    open var subscribedTopics: [String] = []
     //                                requestId
     fileprivate var unsubscribeRequests: [Int: (subscription: NSNumber, callback: UnsubscribeCallback, errorCallback: ErrorUnsubscribeCallback)] = [:]
 
@@ -424,114 +425,226 @@ open class SwampSession: SwampTransportDelegate {
     }
 
     open func swampTransportReceivedData(_ data: Data) {
-        if let payload = self.serializer?.unpack(data), let message = SwampMessages.createMessage(payload) {
+        guard let payload = self.serializer?.unpack(data),
+              let typeIdentifier = payload[0] as? Int,
+              let type = SwampMessageType(rawValue: typeIdentifier) else {
+            return
+        }
+
+        switch type {
+
+        case .welcome:
+            let message = WelcomeSwampMessage(payload: Array(payload[1 ..< payload.count]))
             self.handleMessage(message)
+
+        case .abort:
+            let message = AbortSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            self.handleMessage(message)
+
+        case .goodbye:
+            let message = GoodbyeSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            self.handleMessage(message)
+
+        case .error:
+            let message = ErrorSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            self.handleMessage(message)
+
+
+        case .published:
+            let message = PublishedSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            self.handleMessage(message)
+
+        case .subscribed:
+            let message = SubscribedSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            self.handleMessage(message)
+
+        case .unsubscribed:
+            let message = UnsubscribedSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            self.handleMessage(message)
+
+        case .event:
+            let message = EventSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            self.handleMessage(message)
+
+        case .result:
+            let message = ResultSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            self.handleMessage(message)
+
+        case .challenge:
+            let message = ChallengeSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            self.handleMessage(message)
+
+//      Not implemented (TODO : not yet ?)
+//        case .hello:
+//            let message = HelloSwampMessage(payload: Array(payload[1 ..< payload.count]))
+//            self.handleMessage(message)
+
+//        case .publish:
+//            let message = PublishSwampMessage(payload: Array(payload[1 ..< payload.count]))
+//            self.handleMessage(message)
+
+//        case .subscribe:
+//            let message = SubscribeSwampMessage(payload: Array(payload[1 ..< payload.count]))
+//            self.handleMessage(message)
+
+//        case .unsubscribe:
+//            let message = UnsubscribeSwampMessage(payload: Array(payload[1 ..< payload.count]))
+//            self.handleMessage(message)
+
+//        case .call:
+//            let message = CallSwampMessage(payload: Array(payload[1 ..< payload.count]))
+//            self.handleMessage(message)
+
+//        case .register:
+//            let message = RegisterSwampMessage(payload: Array(payload[1 ..< payload.count]))
+//            self.handleMessage(message)
+
+//        case .registered:
+//            let message = RegisteredSwampMessage(payload: Array(payload[1 ..< payload.count]))
+//            self.handleMessage(message)
+
+//        case .unregister:
+//            let message = UnregisterSwampMessage(payload: Array(payload[1 ..< payload.count]))
+//            self.handleMessage(message)
+
+//        case .unregistered:
+//            let message = UnregisteredSwampMessage(payload: Array(payload[1 ..< payload.count]))
+//            self.handleMessage(message)
+
+//        case .invocation:
+//            let message = InvocationSwampMessage(payload: Array(payload[1 ..< payload.count]))
+//            self.handleMessage(message)
+
+//        case .yield:
+//            let message = YieldSwampMessage(payload: Array(payload[1 ..< payload.count]))
+//            self.handleMessage(message)
+
+//        case .authenticate:
+//            let message = AuthenticateSwampMessage(payload: Array(payload[1 ..< payload.count]))
+//            self.handleMessage(message)
+
+        default:
+            return
         }
     }
 
-    fileprivate func handleMessage(_ message: SwampMessage) {
-        switch message {
-                // MARK: Auth responses
-        case let message as ChallengeSwampMessage:
-            if let authResponse = self.delegate?.swampSessionHandleChallenge(message.authMethod, extra: message.extra) {
-                self.sendMessage(AuthenticateSwampMessage(signature: authResponse, extra: [:]))
-            } else {
-                print("There was no delegate, aborting.")
-                self.abort()
-            }
-                // MARK: Session responses
-        case let message as WelcomeSwampMessage:
-            self.sessionId = message.sessionId
-            let routerRoles = message.details["roles"]! as! [String: [String: Any]]
-            self.routerSupportedRoles = routerRoles.keys.map {
-                SwampRole(rawValue: $0)!
-            }
-            self.delegate?.swampSessionConnected(self, sessionId: message.sessionId)
-        case let message as GoodbyeSwampMessage:
-            if message.reason != "wamp.error.goodbye_and_out" {
-                // Means it's not our initiated goodbye, and we should reply with goodbye
-                self.sendMessage(GoodbyeSwampMessage(details: [:], reason: "wamp.error.goodbye_and_out"))
-            }
-            self.transport.disconnect(message.reason)
-        case let message as AbortSwampMessage:
-            self.transport.disconnect(message.reason)
-                // MARK: Call role
-        case let message as ResultSwampMessage:
-            let requestId = message.requestId
-            if let (callback, _) = self.callRequests.removeValue(forKey: requestId) {
-                callback(message.details, message.results, message.kwResults)
-            } else {
-                // TODO: log this erroneous situation
-            }
-                // MARK: Subscribe role
-        case let message as SubscribedSwampMessage:
-            let requestId = message.requestId
-            if let (callback, _, eventCallback) = self.subscribeRequests.removeValue(forKey: requestId) {
-                // Notify user and delegate him to unsubscribe this subscription
-                let subscription = Subscription(session: self, subscription: message.subscription, onEvent: eventCallback)
-                callback(subscription)
-                // Subscription succeeded, we should store event callback for when it's fired
-                self.subscriptions[message.subscription] = subscription
-            } else {
-                // TODO: log this erroneous situation
-            }
-        case let message as EventSwampMessage:
-            if let subscription = self.subscriptions[message.subscription] {
-                subscription.eventCallback(message.details, message.args, message.kwargs)
-            } else {
-                // TODO: log this erroneous situation
-            }
-        case let message as UnsubscribedSwampMessage:
-            let requestId = message.requestId
-            if let (subscription, callback, _) = self.unsubscribeRequests.removeValue(forKey: requestId) {
-                if let subscription = self.subscriptions.removeValue(forKey: subscription) {
-                    subscription.invalidate()
-                    callback()
-                } else {
-                    // TODO: log this erroneous situation
-                }
-            } else {
-                // TODO: log this erroneous situation
-            }
-        case let message as PublishedSwampMessage:
-            let requestId = message.requestId
-            if let (callback, _) = self.publishRequests.removeValue(forKey: requestId) {
+    fileprivate func handleMessage(_ message: ChallengeSwampMessage) {
+        if let authResponse = self.delegate?.swampSessionHandleChallenge(message.authMethod, extra: message.extra) {
+            self.sendMessage(AuthenticateSwampMessage(signature: authResponse, extra: [:]))
+        } else {
+            print("There was no delegate, aborting.")
+            self.abort()
+        }
+        // MARK: Session responses
+    }
+
+    fileprivate func handleMessage(_ message: WelcomeSwampMessage) {
+        self.sessionId = message.sessionId
+        let routerRoles = message.details["roles"]! as! [String: [String: Any]]
+        self.routerSupportedRoles = routerRoles.keys.map {
+            SwampRole(rawValue: $0)!
+        }
+        self.delegate?.swampSessionConnected(self, sessionId: message.sessionId)
+    }
+
+
+    fileprivate func handleMessage(_ message: GoodbyeSwampMessage) {
+        if message.reason != "wamp.error.goodbye_and_out" {
+            // Means it's not our initiated goodbye, and we should reply with goodbye
+            self.sendMessage(GoodbyeSwampMessage(details: [:], reason: "wamp.error.goodbye_and_out"))
+        }
+        self.transport.disconnect(message.reason)
+    }
+
+    fileprivate func handleMessage(_ message: AbortSwampMessage) {
+        self.transport.disconnect(message.reason)
+        // MARK: Call role
+    }
+
+    fileprivate func handleMessage(_ message: ResultSwampMessage) {
+        let requestId = message.requestId
+        if let (callback, _) = self.callRequests.removeValue(forKey: requestId) {
+            callback(message.details, message.results, message.kwResults)
+        } else {
+            // TODO: log this erroneous situation
+        }
+        // MARK: Subscribe role
+    }
+
+    fileprivate func handleMessage(_ message: SubscribedSwampMessage) {
+        let requestId = message.requestId
+        if let (callback, _, eventCallback) = self.subscribeRequests.removeValue(forKey: requestId) {
+            // Notify user and delegate him to unsubscribe this subscription
+            let subscription = Subscription(session: self, subscription: message.subscription, onEvent: eventCallback)
+            callback(subscription)
+            // Subscription succeeded, we should store event callback for when it's fired
+            self.subscriptions[message.subscription] = subscription
+        } else {
+            // TODO: log this erroneous situation
+        }
+    }
+
+    fileprivate func handleMessage(_ message: EventSwampMessage) {
+        if let subscription = self.subscriptions[message.subscription] {
+            subscription.eventCallback(message.details, message.args, message.kwargs)
+        } else {
+            // TODO: log this erroneous situation
+        }
+    }
+
+    fileprivate func handleMessage(_ message: UnsubscribedSwampMessage) {
+        let requestId = message.requestId
+        if let (subscription, callback, _) = self.unsubscribeRequests.removeValue(forKey: requestId) {
+            if let subscription = self.subscriptions.removeValue(forKey: subscription) {
+                subscription.invalidate()
                 callback()
             } else {
                 // TODO: log this erroneous situation
             }
+        } else {
+            // TODO: log this erroneous situation
+        }
+    }
 
-                ////////////////////////////////////////////
-                // MARK: Handle error responses
-                ////////////////////////////////////////////
-        case let message as ErrorSwampMessage:
-            switch message.requestType {
-            case SwampMessages.call:
-                if let (_, errorCallback) = self.callRequests.removeValue(forKey: message.requestId) {
-                    errorCallback(message.details, message.error, message.args, message.kwargs)
-                } else {
-                    // TODO: log this erroneous situation
-                }
-            case SwampMessages.subscribe:
-                if let (_, errorCallback, _) = self.subscribeRequests.removeValue(forKey: message.requestId) {
-                    errorCallback(message.details, message.error)
-                } else {
-                    // TODO: log this erroneous situation
-                }
-            case SwampMessages.unsubscribe:
-                if let (_, _, errorCallback) = self.unsubscribeRequests.removeValue(forKey: message.requestId) {
-                    errorCallback(message.details, message.error)
-                } else {
-                    // TODO: log this erroneous situation
-                }
-            case SwampMessages.publish:
-                if let (_, errorCallback) = self.publishRequests.removeValue(forKey: message.requestId) {
-                    errorCallback(message.details, message.error)
-                } else {
-                    // TODO: log this erroneous situation
-                }
-            default:
-                return
+    fileprivate func handleMessage(_ message: PublishedSwampMessage) {
+        let requestId = message.requestId
+        if let (callback, _) = self.publishRequests.removeValue(forKey: requestId) {
+            callback()
+        } else {
+            // TODO: log this erroneous situation
+        }
+    }
+
+
+    ////////////////////////////////////////////
+    // MARK: Handle error responses
+    ////////////////////////////////////////////
+
+    fileprivate func handleMessage(_ message: ErrorSwampMessage) {
+        switch message.requestType {
+        case SwampMessageType.call:
+            if let (_, errorCallback) = self.callRequests.removeValue(forKey: message.requestId) {
+                errorCallback(message.details, message.error, message.args, message.kwargs)
+            } else {
+                // TODO: log this erroneous situation
+            }
+        case SwampMessageType.subscribe:
+            if let (_, errorCallback, _) = self.subscribeRequests.removeValue(forKey: message.requestId) {
+                errorCallback(message.details, message.error)
+            } else {
+                // TODO: log this erroneous situation
+            }
+        case SwampMessageType.unsubscribe:
+            if let (_, _, errorCallback) = self.unsubscribeRequests.removeValue(forKey: message.requestId) {
+                errorCallback(message.details, message.error)
+            } else {
+                // TODO: log this erroneous situation
+            }
+        case SwampMessageType.publish:
+            if let (_, errorCallback) = self.publishRequests.removeValue(forKey: message.requestId) {
+                errorCallback(message.details, message.error)
+            } else {
+                // TODO: log this erroneous situation
             }
         default:
             return
@@ -558,4 +671,5 @@ open class SwampSession: SwampTransportDelegate {
         self.currRequestId += 1
         return self.currRequestId
     }
+
 }

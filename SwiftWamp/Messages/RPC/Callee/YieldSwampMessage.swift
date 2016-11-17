@@ -11,6 +11,7 @@ import Foundation
 // [YIELD, requestId|number, options|dict, args|array?, kwargs|dict?]
 class YieldSwampMessage: SwampMessage {
 
+    let type: SwampMessageType = .yield
     let requestId: Int
     let options: [String: Any]
 
@@ -35,7 +36,7 @@ class YieldSwampMessage: SwampMessage {
     }
 
     func marshal() -> [Any] {
-        var marshalled: [Any] = [SwampMessages.yield.rawValue, self.requestId, self.options]
+        var marshalled: [Any] = [self.type.rawValue, self.requestId, self.options]
 
         if let args = self.args {
             marshalled.append(args)
@@ -48,7 +49,7 @@ class YieldSwampMessage: SwampMessage {
                 marshalled.append(kwargs)
             }
         }
-        
+
         return marshalled
     }
 }

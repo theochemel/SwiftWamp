@@ -14,7 +14,7 @@ import Foundation
 open class Subscription {
     fileprivate let session: SwampSession
     internal let subscription: NSNumber
-    internal let eventCallback: EventCallback
+    internal var eventCallback: EventCallback
     fileprivate var isActive: Bool = true
 
     internal init(session: SwampSession, subscription: NSNumber, onEvent: @escaping EventCallback) {
@@ -43,5 +43,9 @@ open class Subscription {
             onError([:], "Subscription already inactive.")
         }
         self.session.unsubscribe(self.subscription, onSuccess: onSuccess, onError: onError)
+    }
+
+    open func changeEventCallback(callback: @escaping EventCallback) {
+        self.eventCallback = callback
     }
 }

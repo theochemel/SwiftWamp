@@ -11,6 +11,7 @@ import Foundation
 /// [EVENT, subscription|number, publication|number, details|dict, args|list?, kwargs|dict?]
 class EventSwampMessage: SwampMessage {
 
+    let type: SwampMessageType = .event
     let subscription: NSNumber
     let publication: NSNumber
     let details: [String: Any]
@@ -38,7 +39,7 @@ class EventSwampMessage: SwampMessage {
     }
 
     func marshal() -> [Any] {
-        var marshalled: [Any] = [SwampMessages.event.rawValue, self.subscription, self.publication, self.details]
+        var marshalled: [Any] = [self.type.rawValue, self.subscription, self.publication, self.details]
 
         if let args = self.args {
             marshalled.append(args)

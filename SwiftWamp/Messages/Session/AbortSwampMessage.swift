@@ -12,6 +12,7 @@ import SwiftyJSON
 /// [ABORT, details|dict, reason|uri]
 class AbortSwampMessage: SwampMessage {
 
+    let type: SwampMessageType = .abort
     let details: [String: Any]
     let reason: String
 
@@ -28,6 +29,6 @@ class AbortSwampMessage: SwampMessage {
     }
 
     func marshal() -> [Any] {
-        return [SwampMessages.abort.rawValue, self.details, self.reason]
+        return [self.type.rawValue, self.details, self.reason]
     }
 }

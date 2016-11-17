@@ -11,6 +11,7 @@ import Foundation
 /// [HELLO, realm|string, details|dict]
 class HelloSwampMessage: SwampMessage {
 
+    let type: SwampMessageType = .hello
     let realm: String
     let details: [String: Any]
 
@@ -27,6 +28,6 @@ class HelloSwampMessage: SwampMessage {
     }
 
     func marshal() -> [Any] {
-        return [SwampMessages.hello.rawValue, self.realm, self.details]
+        return [self.type.rawValue, self.realm, self.details]
     }
 }

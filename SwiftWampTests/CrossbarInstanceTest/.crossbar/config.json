@@ -3,6 +3,11 @@
     "workers": [
         {
             "type": "router",
+            "options": {
+                "pythonpath": [
+                    ".."
+                ]
+            },
             "realms": [
                 {
                     "name": "open-realm",
@@ -26,12 +31,28 @@
                                     "cache": true
                                 }
                             ]
+                        },
+                        {
+                            "name": "authorizer",
+                            "permissions": [
+                                {
+                                    "uri": "authorize",
+                                    "match": "exact",
+                                    "allow": {
+                                        "register": true
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "dynamic",
+                            "authorizer": "authorize"
                         }
                     ]
                 },
                 {
-                	"name": "restrictive-realm",
-                	"roles": [
+                    "name": "restrictive-realm",
+                    "roles": [
                         {
                             "name": "user",
                             "permissions": [
@@ -53,6 +74,48 @@
                             ]
                         }
                     ]
+                },
+                {
+                    "name": "realm1",
+                    "trace": true,
+                    "roles": [
+                        {
+                            "name": "authorizer",
+                            "permissions": [
+                                {
+                                    "uri": "authorize",
+                                    "match": "exact",
+                                    "allow": {
+                                        "register": true
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "authenticator",
+                            "permissions": [
+                                {
+                                    "uri": "authenticate",
+                                    "match": "exact",
+                                    "allow": {
+                                        "call": false,
+                                        "register": true,
+                                        "publish": false,
+                                        "subscribe": false
+                                    },
+                                    "disclose": {
+                                        "caller": false,
+                                        "publisher": false
+                                    },
+                                    "cache": true
+                                }
+                            ]
+                        },
+                        {
+                            "name": "dynamic_user",
+                            "authorizer": "authorize"
+                        }
+                    ]
                 }
             ],
             "transports": [
@@ -70,54 +133,49 @@
                                     "type": "static",
                                     "role": "public"
                                 },
-		                        "wampcra": {
-		                            "type": "static",
-		                            "users": {
-		                                "homer": {
-		                                    "secret": "secret123",
-		                                    "role": "user"
-		                                }
-		                            }
-		                        }
+                                "wampcra": {
+                                    "type": "static",
+                                    "users": {
+                                        "homer": {
+                                            "secret": "secret123",
+                                            "role": "user"
+                                        }
+                                    }
+                                },
+                                "ticket": {
+                                    "type": "dynamic",
+                                    "authenticator": "authenticate",
+                                    "authorizer": "authorize"
+                                }
                             }
                         }
                     }
                 }
-            ]
-        },
-        {
-            "type": "container",
-            "options": {
-                "pythonpath": [".."]
-            },
+            ],
             "components": [
                 {
                     "type": "class",
                     "classname": "OpenRealmSession.OpenRealmSession",
                     "realm": "open-realm",
-                    "transport": {
-                        "type": "websocket",
-                        "endpoint": {
-                            "type": "tcp",
-                            "host": "127.0.0.1",
-                            "port": 8080
-                        },
-                        "url": "ws://127.0.0.1:8080/ws"
-                    }
+                    "role": "public"
                 },
                 {
                     "type": "class",
                     "classname": "LoopingPublish.LoopingPublish",
                     "realm": "open-realm",
-                    "transport": {
-                        "type": "websocket",
-                        "endpoint": {
-                            "type": "tcp",
-                            "host": "127.0.0.1",
-                            "port": 8080
-                        },
-                        "url": "ws://127.0.0.1:8080/ws"
-                    }
+                    "role": "public"
+                },
+                {
+                    "type": "class",
+                    "classname": "AuthenticatorSession.AuthenticatorSession",
+                    "realm": "realm1",
+                    "role": "authenticator"
+                },
+                {
+                    "type": "class",
+                    "classname": "AuthorizerSession.AuthorizerSession",
+                    "realm": "realm1",
+                    "role": "authorizer"
                 }
             ]
         }

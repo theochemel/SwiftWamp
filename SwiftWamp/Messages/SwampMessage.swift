@@ -9,6 +9,7 @@
 import Foundation
 
 protocol SwampMessage {
+    var type: SwampMessageType {get}
     init(payload: [Any])
     func marshal() -> [Any]
 }

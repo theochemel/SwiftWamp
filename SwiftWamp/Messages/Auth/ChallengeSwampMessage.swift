@@ -10,8 +10,10 @@ import Foundation
 import SwiftyJSON
 
 /// [CHALLENGE, authMethod|string, extra|dict]
+
 class ChallengeSwampMessage: SwampMessage {
 
+    let type: SwampMessageType = .challenge
     let authMethod: String
     let extra: [String: Any]
 
@@ -28,6 +30,6 @@ class ChallengeSwampMessage: SwampMessage {
     }
 
     func marshal() -> [Any] {
-        return [SwampMessages.challenge.rawValue, self.authMethod, self.extra]
+        return [self.type.rawValue, self.authMethod, self.extra]
     }
 }
