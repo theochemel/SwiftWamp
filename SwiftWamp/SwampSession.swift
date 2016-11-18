@@ -144,7 +144,7 @@ open class SwampSession: SwampTransportDelegate {
 
     // MARK: Subscriber role
     //                              requestId
-    fileprivate var subscribeRequests: [Int: (callback: SubscribeCallback, errorCallback: ErrorSubscribeCallback, eventCallback: EventCallback)] = [:]
+    fileprivate var subscribeRequests: [Int: (callback: SubscribeCallback, errorCallback: ErrorSubscribeCallback, eventCallback: EventCallback, topic: String)] = [:]
     //                          subscription
     fileprivate var subscriptions: [NSNumber: Subscription] = [:]
     open var subscribedTopics: [String] = []
@@ -290,7 +290,7 @@ open class SwampSession: SwampTransportDelegate {
         // Tell router to subscribe client on a topic
         self.sendMessage(SubscribeSwampMessage(requestId: subscribeRequestId, options: options, topic: topic))
         // Store request ID to handle result
-        self.subscribeRequests[subscribeRequestId] = (callback: onSuccess, errorCallback: onError, eventCallback: onEvent)
+        self.subscribeRequests[subscribeRequestId] = (callback: onSuccess, errorCallback: onError, eventCallback: onEvent, topic: topic)
     }
 
     /**
@@ -573,9 +573,9 @@ open class SwampSession: SwampTransportDelegate {
 
     fileprivate func handleMessage(_ message: SubscribedSwampMessage) {
         let requestId = message.requestId
-        if let (callback, _, eventCallback) = self.subscribeRequests.removeValue(forKey: requestId) {
+        if let (callback, _, eventCallback, topic) = self.subscribeRequests.removeValue(forKey: requestId) {
             // Notify user and delegate him to unsubscribe this subscription
-            let subscription = Subscription(session: self, subscription: message.subscription, onEvent: eventCallback)
+            let subscription = Subscription(session: self, subscription: message.subscription, onEvent: eventCallback, topic: topic)
             callback(subscription)
             // Subscription succeeded, we should store event callback for when it's fired
             self.subscriptions[message.subscription] = subscription
@@ -586,7 +586,11 @@ open class SwampSession: SwampTransportDelegate {
 
     fileprivate func handleMessage(_ message: EventSwampMessage) {
         if let subscription = self.subscriptions[message.subscription] {
-            subscription.eventCallback(message.details, message.args, message.kwargs)
+            var details = message.details
+            if details.count > 0 {
+                details["topic"] = subscription.topic
+            }
+            subscription.eventCallback(details, message.args, message.kwargs)
         } else {
             // TODO: log this erroneous situation
         }
@@ -629,7 +633,7 @@ open class SwampSession: SwampTransportDelegate {
                 // TODO: log this erroneous situation
             }
         case SwampMessageType.subscribe:
-            if let (_, errorCallback, _) = self.subscribeRequests.removeValue(forKey: message.requestId) {
+            if let (_, errorCallback, _, _) = self.subscribeRequests.removeValue(forKey: message.requestId) {
                 errorCallback(message.details, message.error)
             } else {
                 // TODO: log this erroneous situation

@@ -16,11 +16,13 @@ open class Subscription {
     internal let subscription: NSNumber
     internal var eventCallback: EventCallback
     fileprivate var isActive: Bool = true
+    open let topic: String
 
-    internal init(session: SwampSession, subscription: NSNumber, onEvent: @escaping EventCallback) {
+    internal init(session: SwampSession, subscription: NSNumber, onEvent: @escaping EventCallback, topic: String) {
         self.session = session
         self.subscription = subscription
         self.eventCallback = onEvent
+        self.topic = topic
     }
 
     internal func invalidate() {

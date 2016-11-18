@@ -211,4 +211,30 @@ class SwiftWampTests: XCTestCase, SwampSessionDelegate {
         })
     }
 
+    func testSubscribeTopicAndChangeEventCallback() {
+        session?.subscribe("org.swamp.heartbeat", onSuccess: successSubscribe, onError: errorSubscribe, onEvent: eventFirst)
+        self.expectation["changeCallBack"] = expectation(description: "changeCallBack")
+        waitForExpectations(timeout: 10, handler: { error in
+            XCTAssertNil(error)
+        })
+    }
+
+    func successSubscribe(_ subscription: Subscription) -> Void {
+        subscription.changeEventCallback(callback: self.eventSecond)
+        XCTAssertEqual("org.swamp.heartbeat", subscription.topic)
+        self.subscription["testSubscribeTopicAndChangeEventCallback"] = subscription
+    }
+
+    func errorSubscribe(_: [String: Any], _: String) -> Void {
+        XCTFail()
+    }
+
+    func eventFirst(_: [String: Any], _: [Any]?, _: [String: Any]?) -> Void {
+    }
+
+    func eventSecond(details: [String: Any], args: [Any]?, kwargs: [String: Any]?) -> Void {
+        XCTAssertEqual(details["topic"] as! String, "org.swamp.heartbeat")
+        self.expectation["changeCallBack"]?.fulfill()
+    }
+
 }

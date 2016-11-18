@@ -26,7 +26,7 @@
                                     },
                                     "disclose": {
                                         "caller": false,
-                                        "publisher": false
+                                        "publisher": true
                                     },
                                     "cache": true
                                 }
@@ -67,7 +67,7 @@
                                     },
                                     "disclose": {
                                         "caller": false,
-                                        "publisher": false
+                                        "publisher": true
                                     },
                                     "cache": true
                                 }
@@ -105,7 +105,7 @@
                                     },
                                     "disclose": {
                                         "caller": false,
-                                        "publisher": false
+                                        "publisher": true
                                     },
                                     "cache": true
                                 }
