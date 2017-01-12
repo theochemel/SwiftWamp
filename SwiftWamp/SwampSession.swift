@@ -27,11 +27,11 @@ public typealias ErrorCallCallback = (_: [String: Any], _: String, _: [Any]?, _:
 
 // MARK: Callee callbacks
 // For now callee is irrelevant
-//public typealias RegisterCallback = (registration: Registration) -> Void
-//public typealias ErrorRegisterCallback = (details: [String: Any], error: String) -> Void
-//public typealias SwampProc = (args: [Any]?, kwargs: [String: Any]?) -> Any
-//public typealias UnregisterCallback = () -> Void
-//public typealias ErrorUnregsiterCallback = (details: [String: Any], error: String) -> Void
+public typealias RegisterCallback = (_ registration: Registration) -> Void
+public typealias ErrorRegisterCallback = (_ details: [String: Any], _ error: String) -> Void
+public typealias SwampProc = (_ details: [String: Any], _ args: [Any]?, _ kwargs: [String: Any]?) -> Any
+public typealias UnregisterCallback = () -> Void
+public typealias ErrorUnregsiterCallback = (_ details: [String: Any], _ error: String) -> Void
 
 // MARK: Subscribe callbacks
 /**
@@ -142,6 +142,14 @@ open class SwampSession: SwampTransportDelegate {
     //                         requestId
     fileprivate var callRequests: [Int: (callback: CallCallback, errorCallback: ErrorCallCallback)] = [:]
 
+    // MARK: Registerer role
+    //                              requestId
+    fileprivate var registerRequests: [Int: (callback: RegisterCallback, errorCallback: ErrorRegisterCallback, eventCallback: SwampProc, proc: String)] = [:]
+    //                          registration
+    fileprivate var registrations: [NSNumber: Registration] = [:]
+    fileprivate var unregisterRequests: [Int: (registration: NSNumber, callback: UnregisterCallback, errorCallback: ErrorUnregsiterCallback)] = [:]
+
+
     // MARK: Subscriber role
     //                              requestId
     fileprivate var subscribeRequests: [Int: (callback: SubscribeCallback, errorCallback: ErrorSubscribeCallback, eventCallback: EventCallback, topic: String)] = [:]
@@ -251,9 +259,23 @@ open class SwampSession: SwampTransportDelegate {
     }
 
     // MARK: Callee role
-    // For now callee is irrelevant
-    // public func register(proc: String, options: [String: AnyObject]=[:], onSuccess: RegisterCallback, onError: ErrorRegisterCallback, onFire: SwampProc) {
-    // }
+     public func register(_ proc: String,
+                          options: [String: Any] = [:],
+                          onSuccess: @escaping RegisterCallback,
+                          onError: @escaping ErrorRegisterCallback,
+                          onFire: @escaping SwampProc) {
+        if !self.isConnected() {
+            return
+        }
+        // TODO: assert topic is a valid WAMP uri
+        let requestId = self.generateRequestId()
+        // Tell router to register client on a procedure
+        self.sendMessage(RegisterSwampMessage(requestId: requestId, options: options, proc: proc))
+
+        // Store request ID to handle result
+
+        self.registerRequests[requestId] = (callback: onSuccess, errorCallback: onError, eventCallback: onFire, proc: proc)
+     }
 
     // MARK: Subscriber role
 
@@ -291,6 +313,20 @@ open class SwampSession: SwampTransportDelegate {
         self.sendMessage(SubscribeSwampMessage(requestId: subscribeRequestId, options: options, topic: topic))
         // Store request ID to handle result
         self.subscribeRequests[subscribeRequestId] = (callback: onSuccess, errorCallback: onError, eventCallback: onEvent, topic: topic)
+    }
+
+    internal func unregister(_ registration: NSNumber,
+                              onSuccess: @escaping UnregisterCallback,
+                              onError: @escaping ErrorUnregsiterCallback) {
+        if !self.isConnected() {
+            return
+        }
+
+        let requestId = self.generateRequestId()
+        // Tell router to unsubscribe me from some subscription
+        self.sendMessage(UnregisterSwampMessage(requestId: requestId, registration: registration))
+        // Store request ID to handle result
+        self.unregisterRequests[requestId] = (registration, onSuccess, onError)
     }
 
     /**
@@ -449,7 +485,6 @@ open class SwampSession: SwampTransportDelegate {
             let message = ErrorSwampMessage(payload: Array(payload[1 ..< payload.count]))
             self.handleMessage(message)
 
-
         case .published:
             let message = PublishedSwampMessage(payload: Array(payload[1 ..< payload.count]))
             self.handleMessage(message)
@@ -474,6 +509,18 @@ open class SwampSession: SwampTransportDelegate {
             let message = ChallengeSwampMessage(payload: Array(payload[1 ..< payload.count]))
             self.handleMessage(message)
 
+        case .registered:
+            let message = RegisteredSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            self.handleMessage(message)
+
+        case .invocation:
+            let message = InvocationSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            self.handleMessage(message)
+
+        case .unregistered:
+            let message = UnregisteredSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            self.handleMessage(message)
+
 //      Not implemented (TODO : not yet ?)
 //        case .hello:
 //            let message = HelloSwampMessage(payload: Array(payload[1 ..< payload.count]))
@@ -491,32 +538,20 @@ open class SwampSession: SwampTransportDelegate {
 //            let message = UnsubscribeSwampMessage(payload: Array(payload[1 ..< payload.count]))
 //            self.handleMessage(message)
 
-//        case .call:
-//            let message = CallSwampMessage(payload: Array(payload[1 ..< payload.count]))
-//            self.handleMessage(message)
-
 //        case .register:
 //            let message = RegisterSwampMessage(payload: Array(payload[1 ..< payload.count]))
-//            self.handleMessage(message)
-
-//        case .registered:
-//            let message = RegisteredSwampMessage(payload: Array(payload[1 ..< payload.count]))
 //            self.handleMessage(message)
 
 //        case .unregister:
 //            let message = UnregisterSwampMessage(payload: Array(payload[1 ..< payload.count]))
 //            self.handleMessage(message)
 
-//        case .unregistered:
-//            let message = UnregisteredSwampMessage(payload: Array(payload[1 ..< payload.count]))
-//            self.handleMessage(message)
-
-//        case .invocation:
-//            let message = InvocationSwampMessage(payload: Array(payload[1 ..< payload.count]))
-//            self.handleMessage(message)
-
 //        case .yield:
 //            let message = YieldSwampMessage(payload: Array(payload[1 ..< payload.count]))
+//            self.handleMessage(message)
+
+//        case .call:
+//            let message = CallSwampMessage(payload: Array(payload[1 ..< payload.count]))
 //            self.handleMessage(message)
 
 //        case .authenticate:
@@ -571,6 +606,20 @@ open class SwampSession: SwampTransportDelegate {
         // MARK: Subscribe role
     }
 
+    fileprivate func handleMessage(_ message: RegisteredSwampMessage) {
+        let requestId = message.requestId
+        if let (callback, _, onFire, proc) = self.registerRequests.removeValue(forKey: requestId) {
+            // Notify user and delegate him to unsubscribe this subscription
+            let registration = Registration(session: self, registration: message.registration, onFire: onFire, proc: proc)
+            callback(registration)
+            // Subscription succeeded, we should store event callback for when it's fired
+            self.registrations[message.registration] = registration
+        } else {
+            // TODO: log this erroneous situation
+        }
+
+    }
+
     fileprivate func handleMessage(_ message: SubscribedSwampMessage) {
         let requestId = message.requestId
         if let (callback, _, eventCallback, topic) = self.subscribeRequests.removeValue(forKey: requestId) {
@@ -579,6 +628,24 @@ open class SwampSession: SwampTransportDelegate {
             callback(subscription)
             // Subscription succeeded, we should store event callback for when it's fired
             self.subscriptions[message.subscription] = subscription
+        } else {
+            // TODO: log this erroneous situation
+        }
+    }
+
+    fileprivate func handleMessage(_ message: InvocationSwampMessage) {
+        if let registration = self.registrations[message.registration] {
+            var details = message.details
+            if details.count > 0 {
+                details["procedure"] = registration.proc
+            }
+            let result = registration.onFire(details, message.args, message.kwargs)
+            if let kwargs = result as? [String: Any] {
+                self.sendMessage(YieldSwampMessage(requestId: message.requestId, options: [:], args: [], kwargs: kwargs))
+            }
+            else {
+                self.sendMessage(YieldSwampMessage(requestId: message.requestId, options: [:], args: [result], kwargs: nil))
+            }
         } else {
             // TODO: log this erroneous situation
         }
@@ -595,6 +662,22 @@ open class SwampSession: SwampTransportDelegate {
             // TODO: log this erroneous situation
         }
     }
+
+
+    fileprivate func handleMessage(_ message: UnregisteredSwampMessage) {
+        let requestId = message.requestId
+        if let (registrationID, callback, _) = self.unregisterRequests.removeValue(forKey: requestId) {
+            if let registration = self.registrations.removeValue(forKey: registrationID) {
+                registration.invalidate()
+                callback()
+            } else {
+                // TODO: log this erroneous situation
+            }
+        } else {
+            // TODO: log this erroneous situation
+        }
+    }
+
 
     fileprivate func handleMessage(_ message: UnsubscribedSwampMessage) {
         let requestId = message.requestId
@@ -646,6 +729,12 @@ open class SwampSession: SwampTransportDelegate {
             }
         case SwampMessageType.publish:
             if let (_, errorCallback) = self.publishRequests.removeValue(forKey: message.requestId) {
+                errorCallback(message.details, message.error)
+            } else {
+                // TODO: log this erroneous situation
+            }
+        case SwampMessageType.register:
+            if let (_, errorCallback, _, _) = self.registerRequests.removeValue(forKey: message.requestId) {
                 errorCallback(message.details, message.error)
             } else {
                 // TODO: log this erroneous situation

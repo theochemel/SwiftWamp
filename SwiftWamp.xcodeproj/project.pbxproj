@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		71AD53A1BFE99EB931E8BD05 /* Pods_SwiftWamp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93B673A0E567E43E3193B159 /* Pods_SwiftWamp.framework */; };
+		9351135A1E27BD60000F4AE5 /* Registration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935113591E27BD60000F4AE5 /* Registration.swift */; };
 		9390D6A21DAFAEBE00E34260 /* RestrictSwiftWampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9390D6A11DAFAEBE00E34260 /* RestrictSwiftWampTests.swift */; };
 		93A201B41DAF881700EE366B /* SwiftWamp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93A201AA1DAF881700EE366B /* SwiftWamp.framework */; };
 		93A201B91DAF881700EE366B /* SwiftWampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93A201B81DAF881700EE366B /* SwiftWampTests.swift */; };
@@ -66,6 +67,7 @@
 		243E73ED58A5605819F1AEA4 /* Pods-SwiftWamp-SwiftWampTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftWamp-SwiftWampTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftWamp-SwiftWampTests/Pods-SwiftWamp-SwiftWampTests.debug.xcconfig"; sourceTree = "<group>"; };
 		36BC57867F91A06EFE3EDB9B /* Pods-SwiftWamp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftWamp.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftWamp/Pods-SwiftWamp.debug.xcconfig"; sourceTree = "<group>"; };
 		490FE92B08E67959687F34F0 /* Pods-SwiftWamp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftWamp.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftWamp/Pods-SwiftWamp.release.xcconfig"; sourceTree = "<group>"; };
+		935113591E27BD60000F4AE5 /* Registration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Registration.swift; sourceTree = "<group>"; };
 		9390D6A11DAFAEBE00E34260 /* RestrictSwiftWampTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestrictSwiftWampTests.swift; sourceTree = "<group>"; };
 		93A201AA1DAF881700EE366B /* SwiftWamp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftWamp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		93A201AD1DAF881700EE366B /* SwiftWamp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwiftWamp.h; sourceTree = "<group>"; };
@@ -177,6 +179,7 @@
 				D6FDF3AD747504B67ACC8446 /* SwampRole.swift */,
 				D6FDF6CC85F08C7CAAD19139 /* SwampSession.swift */,
 				D6FDFF0F77C89C9AB29A8734 /* Subscription.swift */,
+				935113591E27BD60000F4AE5 /* Registration.swift */,
 			);
 			path = SwiftWamp;
 			sourceTree = "<group>";
@@ -419,7 +422,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 0810;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = danysousa;
 				TargetAttributes = {
 					93A201A91DAF881700EE366B = {
@@ -574,6 +577,7 @@
 				D6FDFAA13107D2808E9DD414 /* SubscribedSwampMessage.swift in Sources */,
 				D6FDFCC3C2D03948A92D0B03 /* UnsubscribeSwampMessage.swift in Sources */,
 				D6FDFF2B561CDE82B13B1254 /* UnsubscribedSwampMessage.swift in Sources */,
+				9351135A1E27BD60000F4AE5 /* Registration.swift in Sources */,
 				D6FDFEB8A368031E89A911CA /* AbortSwampMessage.swift in Sources */,
 				D6FDFFFE1D49B9E95C565933 /* HelloSwampMessage.swift in Sources */,
 				D6FDF4ED9D0593D53AAC9AE4 /* GoodbyeSwampMessage.swift in Sources */,

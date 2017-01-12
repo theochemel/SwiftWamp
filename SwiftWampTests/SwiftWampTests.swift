@@ -237,4 +237,28 @@ class SwiftWampTests: XCTestCase, SwampSessionDelegate {
         self.expectation["changeCallBack"]?.fulfill()
     }
 
+    func testRegister() {
+        self.expectation["registerCallBack"] = expectation(description: "registerCallBack")
+        session?.register("test.register", onSuccess: { (_) in
+            self.session?.call("test.register", onSuccess: { (_, args, _) in
+                if let result = args?[0] as? Bool, result == true {
+                    self.expectation["registerCallBack"]?.fulfill()
+                    return
+                }
+                XCTFail()
+            }, onError: { (_, _, _, _) in
+                XCTFail()
+            })
+        }, onError: { (_, _) in
+            XCTFail()
+        }, onFire: { (_, _, _) -> Any in
+            return true
+        })
+
+
+        waitForExpectations(timeout: 10, handler: { error in
+            XCTAssertNil(error)
+        })
+    }
+
 }
