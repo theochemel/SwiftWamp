@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.2.3](https://gitlab.com/danysousa/SwiftWamp/tree/0.2.3)
+* Feat: Add register remote calls
+
 ## [0.2.2](https://gitlab.com/danysousa/SwiftWamp/tree/0.2.2)
 * Feat: Auto Reconnect option
 * Feat: Subscription contain topic name, add function to change event callback for a subscription
