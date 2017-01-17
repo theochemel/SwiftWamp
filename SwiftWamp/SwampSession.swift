@@ -246,9 +246,9 @@ open class SwampSession: SwampTransportDelegate {
                    options: [String: Any] = [:],
                    args: [Any]? = nil,
                    kwargs: [String: Any]? = nil,
+                   using queue: DispatchQueue = .main,
                    onSuccess: @escaping CallCallback,
-                   onError: @escaping ErrorCallCallback,
-                   using queue: DispatchQueue = .main) {
+                   onError: @escaping ErrorCallCallback) {
         if !self.isConnected() {
             return
         }
@@ -262,10 +262,10 @@ open class SwampSession: SwampTransportDelegate {
     // MARK: Callee role
      public func register(_ proc: String,
                           options: [String: Any] = [:],
+                          using queue: DispatchQueue = .main,
                           onSuccess: @escaping RegisterCallback,
                           onError: @escaping ErrorRegisterCallback,
-                          onFire: @escaping SwampProc,
-                          using queue: DispatchQueue = .main) {
+                          onFire: @escaping SwampProc) {
         if !self.isConnected() {
             return
         }
@@ -303,10 +303,10 @@ open class SwampSession: SwampTransportDelegate {
      */
     open func subscribe(_ topic: String,
                         options: [String: Any] = [:],
+                        using queue: DispatchQueue = .main,
                         onSuccess: @escaping SubscribeCallback,
                         onError: @escaping ErrorSubscribeCallback,
-                        onEvent: @escaping EventCallback,
-                        using queue: DispatchQueue = .main) {
+                        onEvent: @escaping EventCallback) {
         if !self.isConnected() {
             return
         }
@@ -346,9 +346,9 @@ open class SwampSession: SwampTransportDelegate {
         (_ details: [String: Any], _ error: String) -> Void
      */
     internal func unsubscribe(_ subscription: NSNumber,
+                              using queue: DispatchQueue = .main,
                               onSuccess: @escaping UnsubscribeCallback,
-                              onError: @escaping ErrorUnsubscribeCallback,
-                              using queue: DispatchQueue = .main) {
+                              onError: @escaping ErrorUnsubscribeCallback) {
         if !self.isConnected() {
             return
         }
@@ -403,9 +403,9 @@ open class SwampSession: SwampTransportDelegate {
                       options: [String: Any] = [:],
                       args: [Any]? = nil,
                       kwargs: [String: Any]? = nil,
+                      using queue: DispatchQueue = .main,
                       onSuccess: @escaping PublishCallback,
-                      onError: @escaping ErrorPublishCallback,
-                      using queue: DispatchQueue = .main) {
+                      onError: @escaping ErrorPublishCallback) {
         if !self.isConnected() {
             return
         }
