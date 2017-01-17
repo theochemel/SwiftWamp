@@ -119,7 +119,7 @@ open class SwampSession: SwampTransportDelegate {
     // MARK: Constants
     // No callee role for now
     fileprivate let supportedRoles: [SwampRole] = [SwampRole.Caller, SwampRole.Subscriber, SwampRole.Publisher]
-    fileprivate let clientName = "SwiftWamp-dev-0.2.1"
+    fileprivate let clientName = "SwiftWamp-dev-0.2.3"
 
     // MARK: Members
     fileprivate let realm: String
@@ -140,28 +140,28 @@ open class SwampSession: SwampTransportDelegate {
 
     // MARK: Call role
     //                         requestId
-    fileprivate var callRequests: [Int: (callback: CallCallback, errorCallback: ErrorCallCallback)] = [:]
+    fileprivate var callRequests: [Int: (callback: CallCallback, errorCallback: ErrorCallCallback, queue: DispatchQueue)] = [:]
 
     // MARK: Registerer role
     //                              requestId
-    fileprivate var registerRequests: [Int: (callback: RegisterCallback, errorCallback: ErrorRegisterCallback, eventCallback: SwampProc, proc: String)] = [:]
+    fileprivate var registerRequests: [Int: (callback: RegisterCallback, errorCallback: ErrorRegisterCallback, eventCallback: SwampProc, proc: String, queue: DispatchQueue)] = [:]
     //                          registration
     fileprivate var registrations: [NSNumber: Registration] = [:]
-    fileprivate var unregisterRequests: [Int: (registration: NSNumber, callback: UnregisterCallback, errorCallback: ErrorUnregsiterCallback)] = [:]
+    fileprivate var unregisterRequests: [Int: (registration: NSNumber, callback: UnregisterCallback, errorCallback: ErrorUnregsiterCallback, queue: DispatchQueue)] = [:]
 
 
     // MARK: Subscriber role
     //                              requestId
-    fileprivate var subscribeRequests: [Int: (callback: SubscribeCallback, errorCallback: ErrorSubscribeCallback, eventCallback: EventCallback, topic: String)] = [:]
+    fileprivate var subscribeRequests: [Int: (callback: SubscribeCallback, errorCallback: ErrorSubscribeCallback, eventCallback: EventCallback, topic: String, queue: DispatchQueue)] = [:]
     //                          subscription
     fileprivate var subscriptions: [NSNumber: Subscription] = [:]
     open var subscribedTopics: [String] = []
     //                                requestId
-    fileprivate var unsubscribeRequests: [Int: (subscription: NSNumber, callback: UnsubscribeCallback, errorCallback: ErrorUnsubscribeCallback)] = [:]
+    fileprivate var unsubscribeRequests: [Int: (subscription: NSNumber, callback: UnsubscribeCallback, errorCallback: ErrorUnsubscribeCallback, queue: DispatchQueue)] = [:]
 
     // MARK: Publisher role
     //                            requestId
-    fileprivate var publishRequests: [Int: (callback: PublishCallback, errorCallback: ErrorPublishCallback)] = [:]
+    fileprivate var publishRequests: [Int: (callback: PublishCallback, errorCallback: ErrorPublishCallback, queue: DispatchQueue)] = [:]
 
     /**
       The default constructor just save all parameters of the session
@@ -247,7 +247,8 @@ open class SwampSession: SwampTransportDelegate {
                    args: [Any]? = nil,
                    kwargs: [String: Any]? = nil,
                    onSuccess: @escaping CallCallback,
-                   onError: @escaping ErrorCallCallback) {
+                   onError: @escaping ErrorCallCallback,
+                   using queue: DispatchQueue = .main) {
         if !self.isConnected() {
             return
         }
@@ -255,7 +256,7 @@ open class SwampSession: SwampTransportDelegate {
         // Tell router to dispatch call
         self.sendMessage(CallSwampMessage(requestId: callRequestId, options: options, proc: proc, args: args, kwargs: kwargs))
         // Store request ID to handle result
-        self.callRequests[callRequestId] = (callback: onSuccess, errorCallback: onError)
+        self.callRequests[callRequestId] = (callback: onSuccess, errorCallback: onError, queue: queue)
     }
 
     // MARK: Callee role
@@ -263,7 +264,8 @@ open class SwampSession: SwampTransportDelegate {
                           options: [String: Any] = [:],
                           onSuccess: @escaping RegisterCallback,
                           onError: @escaping ErrorRegisterCallback,
-                          onFire: @escaping SwampProc) {
+                          onFire: @escaping SwampProc,
+                          using queue: DispatchQueue = .main) {
         if !self.isConnected() {
             return
         }
@@ -274,7 +276,7 @@ open class SwampSession: SwampTransportDelegate {
 
         // Store request ID to handle result
 
-        self.registerRequests[requestId] = (callback: onSuccess, errorCallback: onError, eventCallback: onFire, proc: proc)
+        self.registerRequests[requestId] = (callback: onSuccess, errorCallback: onError, eventCallback: onFire, proc: proc, queue: queue)
      }
 
     // MARK: Subscriber role
@@ -303,7 +305,8 @@ open class SwampSession: SwampTransportDelegate {
                         options: [String: Any] = [:],
                         onSuccess: @escaping SubscribeCallback,
                         onError: @escaping ErrorSubscribeCallback,
-                        onEvent: @escaping EventCallback) {
+                        onEvent: @escaping EventCallback,
+                        using queue: DispatchQueue = .main) {
         if !self.isConnected() {
             return
         }
@@ -312,12 +315,12 @@ open class SwampSession: SwampTransportDelegate {
         // Tell router to subscribe client on a topic
         self.sendMessage(SubscribeSwampMessage(requestId: subscribeRequestId, options: options, topic: topic))
         // Store request ID to handle result
-        self.subscribeRequests[subscribeRequestId] = (callback: onSuccess, errorCallback: onError, eventCallback: onEvent, topic: topic)
+        self.subscribeRequests[subscribeRequestId] = (callback: onSuccess, errorCallback: onError, eventCallback: onEvent, topic: topic, queue: queue)
     }
 
     internal func unregister(_ registration: NSNumber,
                               onSuccess: @escaping UnregisterCallback,
-                              onError: @escaping ErrorUnregsiterCallback) {
+                              onError: @escaping ErrorUnregsiterCallback, queue: DispatchQueue) {
         if !self.isConnected() {
             return
         }
@@ -326,7 +329,7 @@ open class SwampSession: SwampTransportDelegate {
         // Tell router to unsubscribe me from some subscription
         self.sendMessage(UnregisterSwampMessage(requestId: requestId, registration: registration))
         // Store request ID to handle result
-        self.unregisterRequests[requestId] = (registration, onSuccess, onError)
+        self.unregisterRequests[requestId] = (registration, onSuccess, onError, queue: queue)
     }
 
     /**
@@ -344,7 +347,8 @@ open class SwampSession: SwampTransportDelegate {
      */
     internal func unsubscribe(_ subscription: NSNumber,
                               onSuccess: @escaping UnsubscribeCallback,
-                              onError: @escaping ErrorUnsubscribeCallback) {
+                              onError: @escaping ErrorUnsubscribeCallback,
+                              using queue: DispatchQueue = .main) {
         if !self.isConnected() {
             return
         }
@@ -353,7 +357,7 @@ open class SwampSession: SwampTransportDelegate {
         // Tell router to unsubscribe me from some subscription
         self.sendMessage(UnsubscribeSwampMessage(requestId: unsubscribeRequestId, subscription: subscription))
         // Store request ID to handle result
-        self.unsubscribeRequests[unsubscribeRequestId] = (subscription, onSuccess, onError)
+        self.unsubscribeRequests[unsubscribeRequestId] = (subscription, onSuccess, onError, queue: queue)
     }
 
     // MARK: Publisher role
@@ -368,7 +372,7 @@ open class SwampSession: SwampTransportDelegate {
      - Parameter args: An optional list of all arguments you want to communicate with this publish
      - Parameter kwargs: An optional dict of all arguments you want to communicate with this publish indexing by key
      */
-    open func publish(_ topic: String, options: [String: Any] = [:], args: [Any]? = nil, kwargs: [String: Any]? = nil) {
+    open func publish(_ topic: String, options: [String: Any] = [:], args: [Any]? = nil, kwargs: [String: Any]? = nil, using queue: DispatchQueue = .main) {
         if !self.isConnected() {
             return
         }
@@ -400,7 +404,8 @@ open class SwampSession: SwampTransportDelegate {
                       args: [Any]? = nil,
                       kwargs: [String: Any]? = nil,
                       onSuccess: @escaping PublishCallback,
-                      onError: @escaping ErrorPublishCallback) {
+                      onError: @escaping ErrorPublishCallback,
+                      using queue: DispatchQueue = .main) {
         if !self.isConnected() {
             return
         }
@@ -412,7 +417,7 @@ open class SwampSession: SwampTransportDelegate {
         // Tell router to publish the event
         self.sendMessage(PublishSwampMessage(requestId: publishRequestId, options: options, topic: topic, args: args, kwargs: kwargs))
         // Store request ID to handle result
-        self.publishRequests[publishRequestId] = (callback: onSuccess, errorCallback: onError)
+        self.publishRequests[publishRequestId] = (callback: onSuccess, errorCallback: onError, queue: queue)
     }
 
     // MARK: SwampTransportDelegate
@@ -598,8 +603,10 @@ open class SwampSession: SwampTransportDelegate {
 
     fileprivate func handleMessage(_ message: ResultSwampMessage) {
         let requestId = message.requestId
-        if let (callback, _) = self.callRequests.removeValue(forKey: requestId) {
-            callback(message.details, message.results, message.kwResults)
+        if let (callback, _, queue) = self.callRequests.removeValue(forKey: requestId) {
+            queue.async {
+                callback(message.details, message.results, message.kwResults)
+            }
         } else {
             // TODO: log this erroneous situation
         }
@@ -608,10 +615,12 @@ open class SwampSession: SwampTransportDelegate {
 
     fileprivate func handleMessage(_ message: RegisteredSwampMessage) {
         let requestId = message.requestId
-        if let (callback, _, onFire, proc) = self.registerRequests.removeValue(forKey: requestId) {
+        if let (callback, _, onFire, proc, queue) = self.registerRequests.removeValue(forKey: requestId) {
             // Notify user and delegate him to unsubscribe this subscription
-            let registration = Registration(session: self, registration: message.registration, onFire: onFire, proc: proc)
-            callback(registration)
+            let registration = Registration(session: self, registration: message.registration, onFire: onFire, proc: proc, queue: queue)
+            queue.async {
+                callback(registration)
+            }
             // Subscription succeeded, we should store event callback for when it's fired
             self.registrations[message.registration] = registration
         } else {
@@ -622,10 +631,12 @@ open class SwampSession: SwampTransportDelegate {
 
     fileprivate func handleMessage(_ message: SubscribedSwampMessage) {
         let requestId = message.requestId
-        if let (callback, _, eventCallback, topic) = self.subscribeRequests.removeValue(forKey: requestId) {
+        if let (callback, _, eventCallback, topic, queue) = self.subscribeRequests.removeValue(forKey: requestId) {
             // Notify user and delegate him to unsubscribe this subscription
-            let subscription = Subscription(session: self, subscription: message.subscription, onEvent: eventCallback, topic: topic)
-            callback(subscription)
+            let subscription = Subscription(session: self, subscription: message.subscription, onEvent: eventCallback, topic: topic, queue: queue)
+            queue.async {
+                callback(subscription)
+            }
             // Subscription succeeded, we should store event callback for when it's fired
             self.subscriptions[message.subscription] = subscription
         } else {
@@ -639,12 +650,14 @@ open class SwampSession: SwampTransportDelegate {
             if details.count > 0 {
                 details["procedure"] = registration.proc
             }
-            let result = registration.onFire(details, message.args, message.kwargs)
-            if let kwargs = result as? [String: Any] {
-                self.sendMessage(YieldSwampMessage(requestId: message.requestId, options: [:], args: [], kwargs: kwargs))
-            }
-            else {
-                self.sendMessage(YieldSwampMessage(requestId: message.requestId, options: [:], args: [result], kwargs: nil))
+            registration.queue.async {
+                let result = registration.onFire(details, message.args, message.kwargs)
+                if let kwargs = result as? [String: Any] {
+                    self.sendMessage(YieldSwampMessage(requestId: message.requestId, options: [:], args: [], kwargs: kwargs))
+                }
+                else {
+                    self.sendMessage(YieldSwampMessage(requestId: message.requestId, options: [:], args: [result], kwargs: nil))
+                }
             }
         } else {
             // TODO: log this erroneous situation
@@ -657,7 +670,9 @@ open class SwampSession: SwampTransportDelegate {
             if details.count > 0 {
                 details["topic"] = subscription.topic
             }
-            subscription.eventCallback(details, message.args, message.kwargs)
+            subscription.queue.async {
+                subscription.eventCallback(details, message.args, message.kwargs)
+            }
         } else {
             // TODO: log this erroneous situation
         }
@@ -666,10 +681,12 @@ open class SwampSession: SwampTransportDelegate {
 
     fileprivate func handleMessage(_ message: UnregisteredSwampMessage) {
         let requestId = message.requestId
-        if let (registrationID, callback, _) = self.unregisterRequests.removeValue(forKey: requestId) {
+        if let (registrationID, callback, _, queue) = self.unregisterRequests.removeValue(forKey: requestId) {
             if let registration = self.registrations.removeValue(forKey: registrationID) {
                 registration.invalidate()
-                callback()
+                queue.async {
+                    callback()
+                }
             } else {
                 // TODO: log this erroneous situation
             }
@@ -681,10 +698,12 @@ open class SwampSession: SwampTransportDelegate {
 
     fileprivate func handleMessage(_ message: UnsubscribedSwampMessage) {
         let requestId = message.requestId
-        if let (subscription, callback, _) = self.unsubscribeRequests.removeValue(forKey: requestId) {
+        if let (subscription, callback, _, queue) = self.unsubscribeRequests.removeValue(forKey: requestId) {
             if let subscription = self.subscriptions.removeValue(forKey: subscription) {
                 subscription.invalidate()
-                callback()
+                queue.async {
+                    callback()
+                }
             } else {
                 // TODO: log this erroneous situation
             }
@@ -695,8 +714,10 @@ open class SwampSession: SwampTransportDelegate {
 
     fileprivate func handleMessage(_ message: PublishedSwampMessage) {
         let requestId = message.requestId
-        if let (callback, _) = self.publishRequests.removeValue(forKey: requestId) {
-            callback()
+        if let (callback, _, queue) = self.publishRequests.removeValue(forKey: requestId) {
+            queue.async {
+                callback()
+            }
         } else {
             // TODO: log this erroneous situation
         }
@@ -710,32 +731,42 @@ open class SwampSession: SwampTransportDelegate {
     fileprivate func handleMessage(_ message: ErrorSwampMessage) {
         switch message.requestType {
         case SwampMessageType.call:
-            if let (_, errorCallback) = self.callRequests.removeValue(forKey: message.requestId) {
-                errorCallback(message.details, message.error, message.args, message.kwargs)
+            if let (_, errorCallback, queue) = self.callRequests.removeValue(forKey: message.requestId) {
+                queue.async {
+                    errorCallback(message.details, message.error, message.args, message.kwargs)
+                }
             } else {
                 // TODO: log this erroneous situation
             }
         case SwampMessageType.subscribe:
-            if let (_, errorCallback, _, _) = self.subscribeRequests.removeValue(forKey: message.requestId) {
-                errorCallback(message.details, message.error)
+            if let (_, errorCallback, _, _, queue) = self.subscribeRequests.removeValue(forKey: message.requestId) {
+                queue.async {
+                    errorCallback(message.details, message.error)
+                }
             } else {
                 // TODO: log this erroneous situation
             }
         case SwampMessageType.unsubscribe:
-            if let (_, _, errorCallback) = self.unsubscribeRequests.removeValue(forKey: message.requestId) {
-                errorCallback(message.details, message.error)
+            if let (_, _, errorCallback, queue) = self.unsubscribeRequests.removeValue(forKey: message.requestId) {
+                queue.async {
+                    errorCallback(message.details, message.error)
+                }
             } else {
                 // TODO: log this erroneous situation
             }
         case SwampMessageType.publish:
-            if let (_, errorCallback) = self.publishRequests.removeValue(forKey: message.requestId) {
-                errorCallback(message.details, message.error)
+            if let (_, errorCallback, queue) = self.publishRequests.removeValue(forKey: message.requestId) {
+                queue.async {
+                    errorCallback(message.details, message.error)
+                }
             } else {
                 // TODO: log this erroneous situation
             }
         case SwampMessageType.register:
-            if let (_, errorCallback, _, _) = self.registerRequests.removeValue(forKey: message.requestId) {
-                errorCallback(message.details, message.error)
+            if let (_, errorCallback, _, _, queue) = self.registerRequests.removeValue(forKey: message.requestId) {
+                queue.async {
+                    errorCallback(message.details, message.error)
+                }
             } else {
                 // TODO: log this erroneous situation
             }

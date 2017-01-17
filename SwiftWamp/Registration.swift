@@ -17,15 +17,17 @@ import Foundation
 open class Registration {
     fileprivate let session: SwampSession
     internal let registration: NSNumber
+    internal let queue: DispatchQueue
     internal var onFire: SwampProc
     fileprivate var isActive: Bool = true
     open let proc: String
 
-    internal init(session: SwampSession, registration: NSNumber, onFire: @escaping SwampProc, proc: String) {
+    internal init(session: SwampSession, registration: NSNumber, onFire: @escaping SwampProc, proc: String, queue: DispatchQueue) {
         self.session = session
         self.registration = registration
         self.onFire = onFire
         self.proc = proc
+        self.queue = queue
     }
 
     internal func invalidate() {
@@ -47,7 +49,7 @@ open class Registration {
         if !self.isActive {
             onError([:], "Registration already inactive.")
         }
-        self.session.unregister(registration, onSuccess: onSuccess, onError: onError)
+        self.session.unregister(registration, onSuccess: onSuccess, onError: onError, queue: self.queue)
     }
 
     open func changeOnFire(callback: @escaping SwampProc) {
