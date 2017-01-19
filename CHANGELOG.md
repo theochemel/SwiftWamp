@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.2.5](https://gitlab.com/danysousa/SwiftWamp/tree/0.2.4)
+* Fix: args type for call invocation response
+
 ## [0.2.4](https://gitlab.com/danysousa/SwiftWamp/tree/0.2.4)
 * Feat: Add optional dispatchQueue used for call callbacks
 
