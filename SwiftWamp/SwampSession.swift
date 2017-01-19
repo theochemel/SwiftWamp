@@ -655,6 +655,9 @@ open class SwampSession: SwampTransportDelegate {
                 if let kwargs = result as? [String: Any] {
                     self.sendMessage(YieldSwampMessage(requestId: message.requestId, options: [:], args: [], kwargs: kwargs))
                 }
+                else if let results = result as? [Any] {
+                    self.sendMessage(YieldSwampMessage(requestId: message.requestId, options: [:], args: results, kwargs: nil))
+                }
                 else {
                     self.sendMessage(YieldSwampMessage(requestId: message.requestId, options: [:], args: [result], kwargs: nil))
                 }
