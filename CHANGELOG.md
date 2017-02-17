@@ -1,6 +1,9 @@
 # Change Log
 
-## [0.2.5](https://gitlab.com/danysousa/SwiftWamp/tree/0.2.4)
+## [0.2.6](https://gitlab.com/danysousa/SwiftWamp/tree/0.2.6)
+* Feat: Add additional websocket transport using SwiftWebSocket lib
+
+## [0.2.5](https://gitlab.com/danysousa/SwiftWamp/tree/0.2.5)
 * Fix: args type for call invocation response
 
 ## [0.2.4](https://gitlab.com/danysousa/SwiftWamp/tree/0.2.4)
