@@ -1,5 +1,8 @@
 # Change Log
 
+## [0.2.7](https://gitlab.com/danysousa/SwiftWamp/tree/0.2.7)
+* Feat: Add debug mode / logging
+
 ## [0.2.6](https://gitlab.com/danysousa/SwiftWamp/tree/0.2.6)
 * Feat: Add additional websocket transport using SwiftWebSocket lib
 
