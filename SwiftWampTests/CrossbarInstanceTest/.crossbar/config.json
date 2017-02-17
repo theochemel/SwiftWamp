@@ -147,6 +147,17 @@
                                     "authenticator": "authenticate",
                                     "authorizer": "authorize"
                                 }
+                            },
+                            "options": {
+                                "compression": {
+                                   "deflate": {
+                                        "request_no_context_takeover": false,
+                                        "request_max_window_bits": 11,
+                                        "no_context_takeover": false,
+                                        "max_window_bits": 11,
+                                        "memory_level": 4
+                                    }
+                                }
                             }
                         }
                     }

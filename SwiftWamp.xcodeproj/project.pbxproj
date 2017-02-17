@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		71AD53A1BFE99EB931E8BD05 /* Pods_SwiftWamp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93B673A0E567E43E3193B159 /* Pods_SwiftWamp.framework */; };
+		934AC72C1E56FCB7007A5754 /* SwiftWebSocketTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934AC72B1E56FCB7007A5754 /* SwiftWebSocketTransport.swift */; };
+		934AC72E1E57079D007A5754 /* SwiftWebSocketLibCompleteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934AC72D1E57079D007A5754 /* SwiftWebSocketLibCompleteTests.swift */; };
+		934AC7301E570D6D007A5754 /* SwiftWebSocketLibConnectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934AC72F1E570D6D007A5754 /* SwiftWebSocketLibConnectTests.swift */; };
+		934AC7321E570E13007A5754 /* SwiftWebSocketLibCompressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934AC7311E570E13007A5754 /* SwiftWebSocketLibCompressionTests.swift */; };
 		9351135A1E27BD60000F4AE5 /* Registration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 935113591E27BD60000F4AE5 /* Registration.swift */; };
 		9390D6A21DAFAEBE00E34260 /* RestrictSwiftWampTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9390D6A11DAFAEBE00E34260 /* RestrictSwiftWampTests.swift */; };
 		93A201B41DAF881700EE366B /* SwiftWamp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93A201AA1DAF881700EE366B /* SwiftWamp.framework */; };
@@ -67,6 +71,10 @@
 		243E73ED58A5605819F1AEA4 /* Pods-SwiftWamp-SwiftWampTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftWamp-SwiftWampTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftWamp-SwiftWampTests/Pods-SwiftWamp-SwiftWampTests.debug.xcconfig"; sourceTree = "<group>"; };
 		36BC57867F91A06EFE3EDB9B /* Pods-SwiftWamp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftWamp.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftWamp/Pods-SwiftWamp.debug.xcconfig"; sourceTree = "<group>"; };
 		490FE92B08E67959687F34F0 /* Pods-SwiftWamp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftWamp.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftWamp/Pods-SwiftWamp.release.xcconfig"; sourceTree = "<group>"; };
+		934AC72B1E56FCB7007A5754 /* SwiftWebSocketTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftWebSocketTransport.swift; sourceTree = "<group>"; };
+		934AC72D1E57079D007A5754 /* SwiftWebSocketLibCompleteTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftWebSocketLibCompleteTests.swift; sourceTree = "<group>"; };
+		934AC72F1E570D6D007A5754 /* SwiftWebSocketLibConnectTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftWebSocketLibConnectTests.swift; sourceTree = "<group>"; };
+		934AC7311E570E13007A5754 /* SwiftWebSocketLibCompressionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftWebSocketLibCompressionTests.swift; sourceTree = "<group>"; };
 		935113591E27BD60000F4AE5 /* Registration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Registration.swift; sourceTree = "<group>"; };
 		9390D6A11DAFAEBE00E34260 /* RestrictSwiftWampTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestrictSwiftWampTests.swift; sourceTree = "<group>"; };
 		93A201AA1DAF881700EE366B /* SwiftWamp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SwiftWamp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -190,8 +198,11 @@
 				93A201B81DAF881700EE366B /* SwiftWampTests.swift */,
 				93A201BA1DAF881700EE366B /* Info.plist */,
 				9390D6A11DAFAEBE00E34260 /* RestrictSwiftWampTests.swift */,
+				934AC72D1E57079D007A5754 /* SwiftWebSocketLibCompleteTests.swift */,
+				934AC72F1E570D6D007A5754 /* SwiftWebSocketLibConnectTests.swift */,
 				D6FDF2B64C7F4A9C3FF772B2 /* SerializerTests */,
 				D6FDF509F18314388AC9AFCE /* Messages */,
+				934AC7311E570E13007A5754 /* SwiftWebSocketLibCompressionTests.swift */,
 			);
 			path = SwiftWampTests;
 			sourceTree = "<group>";
@@ -252,6 +263,7 @@
 			children = (
 				D6FDFDC905A8E26CB167BA1A /* SwampTransport.swift */,
 				D6FDFF58CB7DEEEB4FB3608F /* WebSocketSwampTransport.swift */,
+				934AC72B1E56FCB7007A5754 /* SwiftWebSocketTransport.swift */,
 			);
 			path = Transport;
 			sourceTree = "<group>";
@@ -559,6 +571,7 @@
 				D6FDFE28A4B5EF1770884165 /* JSONSwampSerializer.swift in Sources */,
 				D6FDFD6BC17D152E6EE20022 /* SwampError.swift in Sources */,
 				D6FDF306FEFB5E4DD93A605C /* Extensions.swift in Sources */,
+				934AC72C1E56FCB7007A5754 /* SwiftWebSocketTransport.swift in Sources */,
 				D6FDF6B97A90312C8D2E5B21 /* YieldSwampMessage.swift in Sources */,
 				D6FDF784467DF8FE40A6D803 /* RegisterSwampMessage.swift in Sources */,
 				D6FDFA620916F76F6C1AA088 /* InvocationSwampMessage.swift in Sources */,
@@ -596,6 +609,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				934AC7301E570D6D007A5754 /* SwiftWebSocketLibConnectTests.swift in Sources */,
+				934AC72E1E57079D007A5754 /* SwiftWebSocketLibCompleteTests.swift in Sources */,
+				934AC7321E570E13007A5754 /* SwiftWebSocketLibCompressionTests.swift in Sources */,
 				9390D6A21DAFAEBE00E34260 /* RestrictSwiftWampTests.swift in Sources */,
 				93A201B91DAF881700EE366B /* SwiftWampTests.swift in Sources */,
 				93B598081DB7D3300035017E /* YieldSwampMessageTests.swift in Sources */,
