@@ -36,6 +36,7 @@ class SwiftWampTests: XCTestCase, SwampSessionDelegate {
         super.setUp()
         let transport: WebSocketSwampTransport = WebSocketSwampTransport(wsEndpoint: URL(string: self.socketUrl)!)
         session = SwampSession(realm: self.defaultRealm, transport: transport, authmethods: self.authMethods)
+        self.session!.enableDebug = true
         session?.delegate = self
 
         self.expectation["connectionProcessEnded"] = expectation(description: "connectionProcessEnded")

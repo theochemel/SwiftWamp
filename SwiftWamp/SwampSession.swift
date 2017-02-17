@@ -116,6 +116,8 @@ open class SwampSession: SwampTransportDelegate {
      */
     open var delegate: SwampSessionDelegate?
 
+    open var enableDebug: Bool = false
+
     // MARK: Constants
     // No callee role for now
     fileprivate let supportedRoles: [SwampRole] = [SwampRole.Caller, SwampRole.Subscriber, SwampRole.Publisher]
@@ -250,6 +252,7 @@ open class SwampSession: SwampTransportDelegate {
                    onSuccess: @escaping CallCallback,
                    onError: @escaping ErrorCallCallback) {
         if !self.isConnected() {
+            debugPrint("[SwiftWamp.SwampSession.call][ERROR] - You try to call \(proc) but you're session id is nil")
             return
         }
         let callRequestId = self.generateRequestId()
@@ -267,6 +270,7 @@ open class SwampSession: SwampTransportDelegate {
                           onError: @escaping ErrorRegisterCallback,
                           onFire: @escaping SwampProc) {
         if !self.isConnected() {
+            debugPrint("[SwiftWamp.SwampSession.register][ERROR] - You try to register \(proc) but you're session id is nil")
             return
         }
         // TODO: assert topic is a valid WAMP uri
@@ -308,6 +312,7 @@ open class SwampSession: SwampTransportDelegate {
                         onError: @escaping ErrorSubscribeCallback,
                         onEvent: @escaping EventCallback) {
         if !self.isConnected() {
+            debugPrint("[SwiftWamp.SwampSession.subscribe][ERROR] - You try to subscribe \(topic) but you're session id is nil")
             return
         }
         // TODO: assert topic is a valid WAMP uri
@@ -322,6 +327,7 @@ open class SwampSession: SwampTransportDelegate {
                               onSuccess: @escaping UnregisterCallback,
                               onError: @escaping ErrorUnregsiterCallback, queue: DispatchQueue) {
         if !self.isConnected() {
+            debugPrint("[SwiftWamp.SwampSession.subscribe][ERROR] - You try to unregister \(registration) but you're session id is nil")
             return
         }
 
@@ -350,6 +356,7 @@ open class SwampSession: SwampTransportDelegate {
                               onSuccess: @escaping UnsubscribeCallback,
                               onError: @escaping ErrorUnsubscribeCallback) {
         if !self.isConnected() {
+            debugPrint("[SwiftWamp.SwampSession.unsubscribe][ERROR] - You try to unsubscribe \(subscription) but you're session id is nil")
             return
         }
 
@@ -374,6 +381,7 @@ open class SwampSession: SwampTransportDelegate {
      */
     open func publish(_ topic: String, options: [String: Any] = [:], args: [Any]? = nil, kwargs: [String: Any]? = nil, using queue: DispatchQueue = .main) {
         if !self.isConnected() {
+            debugPrint("[SwiftWamp.SwampSession.publish][ERROR] - You try to publish \(topic) but you're session id is nil")
             return
         }
         // TODO: assert topic is a valid WAMP uri
@@ -407,6 +415,7 @@ open class SwampSession: SwampTransportDelegate {
                       onSuccess: @escaping PublishCallback,
                       onError: @escaping ErrorPublishCallback) {
         if !self.isConnected() {
+            debugPrint("[SwiftWamp.SwampSession.publish][ERROR] - You try to publish \(topic) but you're session id is nil")
             return
         }
         // add acknowledge to options, so we get callbacks
@@ -469,6 +478,7 @@ open class SwampSession: SwampTransportDelegate {
         guard let payload = self.serializer?.unpack(data),
               let typeIdentifier = payload[0] as? Int,
               let type = SwampMessageType(rawValue: typeIdentifier) else {
+            debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - A message is received, but is unknow by SwampMessageType")
             return
         }
 
@@ -476,54 +486,93 @@ open class SwampSession: SwampTransportDelegate {
 
         case .welcome:
             let message = WelcomeSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - A welcome message is received, payload: \(payload)")
+            }
             self.handleMessage(message)
 
         case .abort:
             let message = AbortSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - An abort message is received, payload: \(payload)")
+            }
             self.handleMessage(message)
 
         case .goodbye:
             let message = GoodbyeSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - A goodbye message is received, payload: \(payload)")
+            }
             self.handleMessage(message)
 
         case .error:
             let message = ErrorSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - An error message is received, payload: \(payload)")
+            }
             self.handleMessage(message)
 
         case .published:
             let message = PublishedSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - A published message is received, payload: \(payload)")
+            }
             self.handleMessage(message)
 
         case .subscribed:
             let message = SubscribedSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - A subscribed message is received, payload: \(payload)")
+            }
             self.handleMessage(message)
 
         case .unsubscribed:
             let message = UnsubscribedSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - An unsubscribed message is received, payload: \(payload)")
+            }
             self.handleMessage(message)
 
         case .event:
             let message = EventSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - An event message is received, payload: \(payload)")
+            }
             self.handleMessage(message)
 
         case .result:
             let message = ResultSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - A result message is received, payload: \(payload)")
+            }
             self.handleMessage(message)
 
         case .challenge:
             let message = ChallengeSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - A challenge message is received, payload: \(payload)")
+            }
             self.handleMessage(message)
 
         case .registered:
             let message = RegisteredSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - A registered message is received, payload: \(payload)")
+            }
             self.handleMessage(message)
 
         case .invocation:
             let message = InvocationSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - An invocation message is received, payload: \(payload)")
+            }
             self.handleMessage(message)
 
         case .unregistered:
             let message = UnregisteredSwampMessage(payload: Array(payload[1 ..< payload.count]))
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData] - An unregistered message is received, payload: \(payload)")
+            }
             self.handleMessage(message)
 
 //      Not implemented (TODO : not yet ?)
@@ -564,6 +613,7 @@ open class SwampSession: SwampTransportDelegate {
 //            self.handleMessage(message)
 
         default:
+            debugPrint("[SwiftWamp.SwampSession.swampTransportReceivedData][ERROR] - A message is received, but the type isn't supported by SwiftWamp : \(type)")
             return
         }
     }
@@ -572,7 +622,7 @@ open class SwampSession: SwampTransportDelegate {
         if let authResponse = self.delegate?.swampSessionHandleChallenge(message.authMethod, extra: message.extra) {
             self.sendMessage(AuthenticateSwampMessage(signature: authResponse, extra: [:]))
         } else {
-            print("There was no delegate, aborting.")
+            debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - No delegate, abort")
             self.abort()
         }
         // MARK: Session responses
@@ -608,7 +658,8 @@ open class SwampSession: SwampTransportDelegate {
                 callback(message.details, message.results, message.kwResults)
             }
         } else {
-            // TODO: log this erroneous situation
+            debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - A Result message is received, but no entry found for key \(requestId) in callRequests")
+
         }
         // MARK: Subscribe role
     }
@@ -624,7 +675,7 @@ open class SwampSession: SwampTransportDelegate {
             // Subscription succeeded, we should store event callback for when it's fired
             self.registrations[message.registration] = registration
         } else {
-            // TODO: log this erroneous situation
+            debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - A Registered message is received, but no entry found for key \(requestId) in registerRequests")
         }
 
     }
@@ -640,7 +691,7 @@ open class SwampSession: SwampTransportDelegate {
             // Subscription succeeded, we should store event callback for when it's fired
             self.subscriptions[message.subscription] = subscription
         } else {
-            // TODO: log this erroneous situation
+            debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - A Subscribed message is received, but no entry found for key \(requestId) in subscribeRequests")
         }
     }
 
@@ -663,7 +714,7 @@ open class SwampSession: SwampTransportDelegate {
                 }
             }
         } else {
-            // TODO: log this erroneous situation
+            debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - An Invocation message is received, but no entry found for key \(message.registration) in registrations")
         }
     }
 
@@ -677,7 +728,7 @@ open class SwampSession: SwampTransportDelegate {
                 subscription.eventCallback(details, message.args, message.kwargs)
             }
         } else {
-            // TODO: log this erroneous situation
+            debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - An Event message is received, but no entry found for key \(message.subscription) in subscriptions")
         }
     }
 
@@ -691,10 +742,10 @@ open class SwampSession: SwampTransportDelegate {
                     callback()
                 }
             } else {
-                // TODO: log this erroneous situation
+                debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - An Unregistered message is received, but no entry found for key \(registrationID) in registrations")
             }
         } else {
-            // TODO: log this erroneous situation
+            debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - An Unregistered message is received, but no entry found for key \(requestId) in unregisterRequests")
         }
     }
 
@@ -708,10 +759,10 @@ open class SwampSession: SwampTransportDelegate {
                     callback()
                 }
             } else {
-                // TODO: log this erroneous situation
+                debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - An Unsubscribed message is received, but no entry found for key \(subscription) in subscriptions")
             }
         } else {
-            // TODO: log this erroneous situation
+            debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - An Unsubscribed message is received, but no entry found for key \(requestId) in unsubscribeRequests")
         }
     }
 
@@ -722,7 +773,7 @@ open class SwampSession: SwampTransportDelegate {
                 callback()
             }
         } else {
-            // TODO: log this erroneous situation
+            debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - An Published message is received, but no entry found for key \(requestId) in publishRequests")
         }
     }
 
@@ -739,7 +790,7 @@ open class SwampSession: SwampTransportDelegate {
                     errorCallback(message.details, message.error, message.args, message.kwargs)
                 }
             } else {
-                // TODO: log this erroneous situation
+                debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - An Error message with call request type is received, but no entry found for key \(message.requestId) in callRequests")
             }
         case SwampMessageType.subscribe:
             if let (_, errorCallback, _, _, queue) = self.subscribeRequests.removeValue(forKey: message.requestId) {
@@ -747,7 +798,7 @@ open class SwampSession: SwampTransportDelegate {
                     errorCallback(message.details, message.error)
                 }
             } else {
-                // TODO: log this erroneous situation
+                debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - An Error message with subscribe request type is received, but no entry found for key \(message.requestId) in subscribeRequests")
             }
         case SwampMessageType.unsubscribe:
             if let (_, _, errorCallback, queue) = self.unsubscribeRequests.removeValue(forKey: message.requestId) {
@@ -755,7 +806,7 @@ open class SwampSession: SwampTransportDelegate {
                     errorCallback(message.details, message.error)
                 }
             } else {
-                // TODO: log this erroneous situation
+                debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - An Error message with unsubscribe request type is received, but no entry found for key \(message.requestId) in unsubscribeRequests")
             }
         case SwampMessageType.publish:
             if let (_, errorCallback, queue) = self.publishRequests.removeValue(forKey: message.requestId) {
@@ -763,7 +814,7 @@ open class SwampSession: SwampTransportDelegate {
                     errorCallback(message.details, message.error)
                 }
             } else {
-                // TODO: log this erroneous situation
+                debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - An Error message with publish request type is received, but no entry found for key \(message.requestId) in publishRequests")
             }
         case SwampMessageType.register:
             if let (_, errorCallback, _, _, queue) = self.registerRequests.removeValue(forKey: message.requestId) {
@@ -771,7 +822,7 @@ open class SwampSession: SwampTransportDelegate {
                     errorCallback(message.details, message.error)
                 }
             } else {
-                // TODO: log this erroneous situation
+                debugPrint("[SwiftWamp.SwampSession.handleMessage][ERROR] - An Error message with register request type is received, but no entry found for key \(message.requestId) in registerRequests")
             }
         default:
             return

@@ -42,7 +42,7 @@ open class SwiftWebSocketTransport: SwampTransport {
     open func connect() {
         self.socket.open(wsEndPoint, subProtocol: "wamp.2.json")
         if self.enableDebug {
-            debugPrint("Open socket with endPoint: \(wsEndPoint), compression: \(self.socket.compression.on), allowSelfSignedSSL: \(self.socket.allowSelfSignedSSL)")
+            debugPrint("[SwiftWamp.SwiftWebSocketTransport.connect] - Open socket with endPoint: \(wsEndPoint), compression: \(self.socket.compression.on), allowSelfSignedSSL: \(self.socket.allowSelfSignedSSL)")
         }
     }
 
@@ -51,7 +51,7 @@ open class SwiftWebSocketTransport: SwampTransport {
         self.socket.close()
 
         if self.enableDebug {
-            debugPrint("Close socket to : \(wsEndPoint), for reason: \(reason)")
+            debugPrint("[SwiftWamp.SwiftWebSocketTransport.disconnect] - Close socket to : \(wsEndPoint), for reason: \(reason)")
         }
     }
 
@@ -61,12 +61,12 @@ open class SwiftWebSocketTransport: SwampTransport {
             self.socket.send(text: text)
 
             if self.enableDebug {
-                debugPrint("Send text : \(text)")
+                debugPrint("[SwiftWamp.SwiftWebSocketTransport.sendData] - Send text : \(text)")
             }
         } else {
             self.socket.send(data: data)
             if self.enableDebug {
-                debugPrint("Send data : \(data)")
+                debugPrint("[SwiftWamp.SwiftWebSocketTransport.sendData] - Send data : \(data)")
             }
         }
     }
@@ -77,7 +77,7 @@ open class SwiftWebSocketTransport: SwampTransport {
         // TODO: Check which serializer is supported by the server, and choose self.mode and serializer
         delegate?.swampTransportDidConnectWithSerializer(JSONSwampSerializer())
         if self.enableDebug {
-            debugPrint("WebSocket connected")
+            debugPrint("[SwiftWamp.SwiftWebSocketTransport.websocketDidConnect] - WebSocket connected")
         }
     }
 
@@ -86,31 +86,32 @@ open class SwiftWebSocketTransport: SwampTransport {
 
         delegate?.swampTransportDidDisconnect(error, reason: self.disconnectionReason)
         if self.enableDebug {
-            debugPrint("WebSocket closed, code: \(code), reason: \(reason), wasClean: \(wasClean)")
+            debugPrint("[SwiftWamp.SwiftWebSocketTransport.websocketDidDisconnect] - WebSocket closed, code: \(code), reason: \(reason), wasClean: \(wasClean)")
         }
     }
 
     open func websocketDidReceiveError(_ error: Error) {
         delegate?.swampTransportDidDisconnect(error as NSError?, reason: self.disconnectionReason)
         if self.enableDebug {
-            debugPrint("WebSocket received an error : \(error.localizedDescription) | \(error)")
+            debugPrint("[SwiftWamp.SwiftWebSocketTransport.websocketDidReceiveError] - WebSocket received an error : \(error.localizedDescription) | \(error)")
         }
     }
 
     open func websocketDidReceiveMessage(message: Any) {
         guard let text = message as? String else {
             if self.enableDebug {
-                debugPrint("WebSocket received a message, but it can't be cast in String : \(message)")
+                debugPrint("[SwiftWamp.SwiftWebSocketTransport.websocketDidReceiveMessage][ERROR] - WebSocket received a message, but it can't be cast in String : \(message)")
             }
             return
         }
         if let data = text.data(using: String.Encoding.utf8) {
+            if self.enableDebug {
+                debugPrint("[SwiftWamp.SwiftWebSocketTransport.websocketDidReceiveMessage] - WebSocket received a message : \(text)")
+            }
             delegate?.swampTransportReceivedData(data)
         }
-        else {
-            if self.enableDebug {
-                debugPrint("WebSocket received a message, but it can't be contained in data : \(text)")
-            }
+        else if self.enableDebug {
+            debugPrint("[SwiftWamp.SwiftWebSocketTransport.websocketDidReceiveMessage][ERROR] - WebSocket received a message, but it can't be contained in data : \(text)")
         }
     }
 }
