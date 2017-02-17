@@ -1,4 +1,6 @@
 # Change Log
+## [0.2.8](https://gitlab.com/danysousa/SwiftWamp/tree/0.2.8)
+* Fix: Use event.end instead of event.error and event.close 
 
 ## [0.2.7](https://gitlab.com/danysousa/SwiftWamp/tree/0.2.7)
 * Feat: Add debug mode / logging

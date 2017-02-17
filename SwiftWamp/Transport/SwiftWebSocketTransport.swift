@@ -32,8 +32,7 @@ open class SwiftWebSocketTransport: SwampTransport {
         self.socket.compression.on = compression
 
         self.socket.event.open = self.websocketDidConnect
-        self.socket.event.close = self.websocketDidDisconnect
-        self.socket.event.error = self.websocketDidReceiveError
+        self.socket.event.end = self.websocketDidEnd
         self.socket.event.message = self.websocketDidReceiveMessage
     }
 
@@ -81,19 +80,10 @@ open class SwiftWebSocketTransport: SwampTransport {
         }
     }
 
-    open func websocketDidDisconnect(_ code : Int, _ reason : String, _ wasClean : Bool) {
-        let error: NSError = NSError(domain: reason, code: code, userInfo: ["wasClean": wasClean, "reason": reason])
-
-        delegate?.swampTransportDidDisconnect(error, reason: self.disconnectionReason)
-        if self.enableDebug {
-            debugPrint("[SwiftWamp.SwiftWebSocketTransport.websocketDidDisconnect] - WebSocket closed, code: \(code), reason: \(reason), wasClean: \(wasClean)")
-        }
-    }
-
-    open func websocketDidReceiveError(_ error: Error) {
+    open func websocketDidEnd(_ code : Int, _ reason : String, _ wasClean : Bool, _ error : Error?) {
         delegate?.swampTransportDidDisconnect(error as NSError?, reason: self.disconnectionReason)
         if self.enableDebug {
-            debugPrint("[SwiftWamp.SwiftWebSocketTransport.websocketDidReceiveError] - WebSocket received an error : \(error.localizedDescription) | \(error)")
+            debugPrint("[SwiftWamp.SwiftWebSocketTransport.websocketDidDisconnect] - WebSocket closed, code: \(code), reason: \(reason), wasClean: \(wasClean)")
         }
     }
 
