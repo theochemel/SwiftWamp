@@ -13,7 +13,7 @@ Contributions will be merged gladly!
 iOS 8.0
 
 ## Installation
-SwiftWamp is available through cocoapods. Add
+SwiftWamp is available through cocoapods.
 
 ```ruby
 pod "SwiftWamp"
