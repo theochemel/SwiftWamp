@@ -24,7 +24,7 @@ the WAMP WebSocket subprotocol implemented purely in Swift
   s.homepage          = 'https://github.com/pitput/SwiftWamp'
   s.license           = { :type => 'MIT', :file => 'LICENSE' }
   s.author            = { 'Yossi Abraham' => 'yo.ab@outlook.com', 'Dany Sousa' => 'danysousa@protonmail.com' }
-  s.source            = { :git => 'https://github.com/pitput/SwiftWamp', :tag => s.version.to_s }
+  s.source            = { :git => 'https://github.com/pitput/SwiftWamp.git', :tag => s.version.to_s }
   s.documentation_url = 'https://github.com/pitput/SwiftWamp/blob/master/README.md'
 
   s.platform = :ios, '8.0'
@@ -32,12 +32,6 @@ the WAMP WebSocket subprotocol implemented purely in Swift
 
   s.source_files = 'SwiftWamp/**/*'
 
-  # s.resource_bundles = {
-  #   'SwiftWamp' => ['SwiftWamp/Assets/*.png']
-  # }
-
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
   s.dependency 'SwiftyJSON', '3.1.3'
   s.dependency 'Starscream', '2.0.2'
   s.dependency 'CryptoSwift', '0.6.6'
