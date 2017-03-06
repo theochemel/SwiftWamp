@@ -85,6 +85,7 @@ Implement the following methods:
 
 #### Let's get use it!
 * **General note: Lots of callback functions receive args-kwargs pairs, check your other client implementaion to see which of them is utilized, and act accordingly.**
+* **Lots of callback functions receive optional queue argument, it's use for call callback with async DispatchQueue.**
 
 ##### Subscribing on topics
 Subscribing may fire three callbacks:
@@ -95,7 +96,12 @@ Subscribing may fire three callbacks:
 
 ###### Signature
 ```swift
-public func subscribe(topic: String, options: [String: Any]=[:], onSuccess: SubscribeCallback, onError: ErrorSubscribeCallback, onEvent: EventCallback)
+public func subscribe(_ topic: String,
+                        options: [String: Any] = [:],
+                        using queue: DispatchQueue = .main,
+                        onSuccess: @escaping SubscribeCallback,
+                        onError: @escaping ErrorSubscribeCallback,
+                        onEvent: @escaping EventCallback)
 ```
 
 ###### Simple use case:
@@ -130,9 +136,19 @@ Publishing may either be called without callbacks (AKA unacknowledged) or with t
 ###### Signature
 ```swift
 // without acknowledging
-public func publish(topic: String, options: [String: Any]=[:], args: [Any]?=nil, kwargs: [String: Any]?=nil)
+public func publish(_ topic: String,
+                      options: [String: Any] = [:],
+                      args: [Any]? = nil,
+                      kwargs: [String: Any]? = nil,
+                      using queue: DispatchQueue = .main)
 // with acknowledging
-public func publish(topic: String, options: [String: Any]=[:], args: [Any]?=nil, kwargs: [String: Any]?=nil, onSuccess: PublishCallback, onError: ErrorPublishCallback) {
+public func publish(_ topic: String,
+                      options: [String: Any] = [:],
+                      args: [Any]? = nil,
+                      kwargs: [String: Any]? = nil,
+                      using queue: DispatchQueue = .main,
+                      onSuccess: @escaping PublishCallback,
+                      onError: @escaping ErrorPublishCallback)
 ```
 
 ###### Simple use case:
@@ -157,7 +173,13 @@ Calling may fire two callbacks:
 
 ###### Signature
 ```swift
-public func call(proc: String, options: [String: Any]=[:], args: [Any]?=nil, kwargs: [String: Any]?=nil, onSuccess: CallCallback, onError: ErrorCallCallback)
+public func call(_ proc: String,
+                   options: [String: Any] = [:],
+                   args: [Any]? = nil,
+                   kwargs: [String: Any]? = nil,
+                   using queue: DispatchQueue = .main,
+                   onSuccess: @escaping CallCallback,
+                   onError: @escaping ErrorCallCallback)
 ```
 
 ###### Simple use case:
@@ -237,11 +259,12 @@ If for some reason the tests fail, make sure:
 * You have an available port 8080 on your machine
 
 ## Roadmap
-1. MessagePack & Raw Sockets
-2. More robust codebase and error handling
-3. Clean log system
-4. More generic and comfortable API
-5. Advanced profile features
+1. More robust codebase and error handling
+2. Clean log system
+3. Timeout publish option/retry
+4. MessagePack & Raw Sockets
+5. More generic and comfortable API
+6. Advanced profile features
 
 ## Authors
 
@@ -250,4 +273,4 @@ If for some reason the tests fail, make sure:
 
 ## License
 
-I don't care, MIT because it's `pod lib create` default and I'm too lazy to [tldrlegal](https://tldrlegal.com).
+MIT because it's `pod lib create` default : [tldrlegal](https://tldrlegal.com).
