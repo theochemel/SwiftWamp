@@ -1,4 +1,10 @@
 # Change Log
+## [0.2.9](https://github.com/pitput/SwiftWamp/releases/tag/0.2.9)
+* Host code in github
+* Refactor code
+* Improve logs
+* Improve docs
+
 ## [0.2.8](https://gitlab.com/danysousa/SwiftWamp/tree/0.2.8)
 * Fix: Use event.end instead of event.error and event.close 
 
