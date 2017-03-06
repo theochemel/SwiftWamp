@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'SwiftWamp'
-  s.version          = '0.2.8'
+  s.version          = '0.2.9'
   s.summary          = 'WAMP protocol implementation in swift'
 
 # This description is used to generate tags and improve search results.
@@ -18,14 +18,14 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-the WAMP WebSocket subprotocol implemented purely in Swift using Starscream, SwiftyJSON & SwiftPack
+the WAMP WebSocket subprotocol implemented purely in Swift
                        DESC
 
-  s.homepage          = 'https://gitlab.com/danysousa/SwiftWamp'
+  s.homepage          = 'https://github.com/pitput/SwiftWamp'
   s.license           = { :type => 'MIT', :file => 'LICENSE' }
   s.author            = { 'Yossi Abraham' => 'yo.ab@outlook.com', 'Dany Sousa' => 'danysousa@protonmail.com' }
-  s.source            = { :git => 'https://gitlab.com/danysousa/SwiftWamp.git', :tag => s.version.to_s }
-  s.documentation_url = 'https://gitlab.com/danysousa/SwiftWamp/wikis/home'
+  s.source            = { :git => 'https://github.com/pitput/SwiftWamp', :tag => s.version.to_s }
+  s.documentation_url = 'https://github.com/pitput/SwiftWamp/blob/master/README.md'
 
   s.platform = :ios, '8.0'
   s.ios.deployment_target = '8.0'

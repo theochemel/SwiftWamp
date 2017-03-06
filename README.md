@@ -3,9 +3,9 @@
 SwiftWamp is a WAMP implementation in Swift.
 SwiftWamp is a based to [Swamp 0.1.0](https://github.com/iscriptology/swamp/releases/tag/0.1.0)
 
-It currently supports calling remote procedures, subscribing on topics, and publishing events. It also supports authentication using ticket & wampcra authentication.
+It currently supports calling and register remote procedures, subscribing on topics, and publishing events. It also supports authentication using ticket & wampcra authentication.
 
-SwiftWamp `0.2.8` use WebSockets as its only available transport, and JSON as its serialization method.
+SwiftWamp `0.2.9` use WebSockets as its only available transport, and JSON as its serialization method.
 
 Contributions will be merged gladly!
 
@@ -13,7 +13,7 @@ Contributions will be merged gladly!
 iOS 8.0
 
 ## Installation
-SwiftWamp is available through cocoapods. Add
+SwiftWamp is available through cocoapods.
 
 ```ruby
 pod "SwiftWamp"
@@ -27,13 +27,39 @@ to your Podfile.
 ```swift
 import SwiftWamp
 
-let swampTransport = WebSocketSwampTransport(wsEndpoint:  NSURL(string: "ws://my-router.com:8080/ws")!)
-let swampSession = SwampSession(realm: "router-defined-realm", transport: swampTransport)
+do {
+     let url = try "ws://my-router.com:8080/ws".asURL()
+     let transport = WebSocketSwampTransport(wsEndpoint: url)
+
+     let session = SwampSession(realm: "router-defined-realm", transport: transport)
+     // Set delegate for callbacks
+     // swampSession.delegate = <SwampSessionDelegate implementation>
+
+     session.connect()
+     session.disconnect()
+}
+catch {
+     print("Invalid url format")
+}
+
+```
+
+#### Connect to router using SwiftWebSocket lib and compression
+
+```swift
+import SwiftWamp
+
+let transport = SwiftWebSocketTransport(wsEndpoint: "ws://my-router.com:8080/ws", compression: true)
+
+let session = SwampSession(realm: "router-defined-realm", transport: transport)
 // Set delegate for callbacks
 // swampSession.delegate = <SwampSessionDelegate implementation>
-swampSession.connect()
-swampSession.disconnect()
+
+session.connect()
+session.disconnect()
+
 ```
+
 ##### SwampSession constructor parameters
 * `realm` - which realm to join
 * `transport` - a `SwampTransport` implementation
@@ -57,41 +83,9 @@ Implement the following methods:
  * Fired once the connection has ended.
  * `reason` is usually a WAMP-domain error, but it can also be a textual description of WTF just happened
 
-#### Let's get the shit started!
+#### Let's get use it!
 * **General note: Lots of callback functions receive args-kwargs pairs, check your other client implementaion to see which of them is utilized, and act accordingly.**
-
-##### Calling remote procedures
-Calling may fire two callbacks:
-
-* `onSuccess` - if calling has completed without errors.
-* `onError` - If the call has failed. (Either in router or in peer client.)
-
-###### Signature
-```swift
-public func call(proc: String, options: [String: Any]=[:], args: [Any]?=nil, kwargs: [String: Any]?=nil, onSuccess: CallCallback, onError: ErrorCallCallback)
-```
-
-###### Simple use case:
-```swift
-session.call("wamp.procedure", args: [1, "argument1"],
-    onSuccess: { details, results, kwResults in
-        // Usually result is in results[0], but do a manual check in your infrastructure
-    },
-    onError: { details, error, args, kwargs in
-        // Handle your error here (You can ignore args kwargs in most cases)
-    })
-```
-
-###### Full use case:
-```swift
-session.call("wamp.procedure", options: ["disclose_me": true], args: [1, "argument1"], kwargs: ["arg1": 1, "arg2": "argument2"],
-    onSuccess: { details, results, kwResults in
-        // Usually result is in results[0], but do a manual check in your infrastructure
-    },
-    onError: { details, error, args, kwargs in
-        // Handle your error here (You can ignore args kwargs in most cases)
-    })
-```
+* **Lots of callback functions receive optional queue argument, it's use for call callback with async DispatchQueue.**
 
 ##### Subscribing on topics
 Subscribing may fire three callbacks:
@@ -102,7 +96,12 @@ Subscribing may fire three callbacks:
 
 ###### Signature
 ```swift
-public func subscribe(topic: String, options: [String: Any]=[:], onSuccess: SubscribeCallback, onError: ErrorSubscribeCallback, onEvent: EventCallback)
+public func subscribe(_ topic: String,
+                        options: [String: Any] = [:],
+                        using queue: DispatchQueue = .main,
+                        onSuccess: @escaping SubscribeCallback,
+                        onError: @escaping ErrorSubscribeCallback,
+                        onEvent: @escaping EventCallback)
 ```
 
 ###### Simple use case:
@@ -137,9 +136,19 @@ Publishing may either be called without callbacks (AKA unacknowledged) or with t
 ###### Signature
 ```swift
 // without acknowledging
-public func publish(topic: String, options: [String: Any]=[:], args: [Any]?=nil, kwargs: [String: Any]?=nil)
+public func publish(_ topic: String,
+                      options: [String: Any] = [:],
+                      args: [Any]? = nil,
+                      kwargs: [String: Any]? = nil,
+                      using queue: DispatchQueue = .main)
 // with acknowledging
-public func publish(topic: String, options: [String: Any]=[:], args: [Any]?=nil, kwargs: [String: Any]?=nil, onSuccess: PublishCallback, onError: ErrorPublishCallback) {
+public func publish(_ topic: String,
+                      options: [String: Any] = [:],
+                      args: [Any]? = nil,
+                      kwargs: [String: Any]? = nil,
+                      using queue: DispatchQueue = .main,
+                      onSuccess: @escaping PublishCallback,
+                      onError: @escaping ErrorPublishCallback)
 ```
 
 ###### Simple use case:
@@ -154,6 +163,77 @@ session.publish("wamp.topic", options: ["disclose_me": true],  args: [1, "argume
     }, onError: { details, error in
         // Handle error (What can it be except wamp.error.not_authorized?)
     })
+```
+
+##### Calling remote procedures
+Calling may fire two callbacks:
+
+* `onSuccess` - If calling has completed without errors.
+* `onError` - If the call has failed. (Either in router or in peer client.)
+
+###### Signature
+```swift
+public func call(_ proc: String,
+                   options: [String: Any] = [:],
+                   args: [Any]? = nil,
+                   kwargs: [String: Any]? = nil,
+                   using queue: DispatchQueue = .main,
+                   onSuccess: @escaping CallCallback,
+                   onError: @escaping ErrorCallCallback)
+```
+
+###### Simple use case:
+```swift
+session.call("wamp.procedure", args: [1, "argument1"],
+    onSuccess: { details, results, kwResults in
+        // Usually result is in results[0], but do a manual check in your infrastructure
+    },
+    onError: { details, error, args, kwargs in
+        // Handle your error here (You can ignore args kwargs in most cases)
+    })
+```
+
+###### Full use case:
+```swift
+session.call("wamp.procedure", options: ["disclose_me": true], args: [1, "argument1"], kwargs: ["arg1": 1, "arg2": "argument2"],
+    onSuccess: { details, results, kwResults in
+        // Usually result is in results[0], but do a manual check in your infrastructure
+    },
+    onError: { details, error, args, kwargs in
+        // Handle your error here (You can ignore args kwargs in most cases)
+    })
+```
+
+##### Register remote procedures
+Calling may fire three callbacks:
+
+* `onSuccess` - If register has completed without errors.
+* `onError` - If the register has failed. (Either in router or in peer client.)
+* `onFire` - The function registered
+
+###### Signature
+```swift
+public func register(_ proc: String,
+                          options: [String: Any] = [:],
+                          using queue: DispatchQueue = .main,
+                          onSuccess: @escaping RegisterCallback,
+                          onError: @escaping ErrorRegisterCallback,
+                          onFire: @escaping SwampProc)
+```
+
+###### Simple use case:
+```swift
+session.register("wamp.procedure",
+    onSuccess: { details, results, kwResults in
+        // Usually result is in results[0], but do a manual check in your infrastructure
+    },
+    onError: { details, error, args, kwargs in
+        // Handle your error here (You can ignore args kwargs in most cases)
+    },
+    onFire: { details, args, kwargs in
+        // Make your great code to execute when someone called your procedure here
+    },
+)
 ```
 
 ## Testing
@@ -179,11 +259,12 @@ If for some reason the tests fail, make sure:
 * You have an available port 8080 on your machine
 
 ## Roadmap
-1. MessagePack & Raw Sockets
-2. Callee role
-3. More robust codebase and error handling
-4. More generic and comfortable API
-5. Advanced profile features
+1. More robust codebase and error handling
+2. Clean log system
+3. Timeout publish option/retry
+4. MessagePack & Raw Sockets
+5. More generic and comfortable API
+6. Advanced profile features
 
 ## Authors
 
@@ -192,4 +273,4 @@ If for some reason the tests fail, make sure:
 
 ## License
 
-I don't care, MIT because it's `pod lib create` default and I'm too lazy to [tldrlegal](https://tldrlegal.com).
+MIT because it's `pod lib create` default : [tldrlegal](https://tldrlegal.com).
