@@ -379,7 +379,11 @@ open class SwampSession: SwampTransportDelegate {
      - Parameter args: An optional list of all arguments you want to communicate with this publish
      - Parameter kwargs: An optional dict of all arguments you want to communicate with this publish indexing by key
      */
-    open func publish(_ topic: String, options: [String: Any] = [:], args: [Any]? = nil, kwargs: [String: Any]? = nil, using queue: DispatchQueue = .main) {
+    open func publish(_ topic: String,
+                      options: [String: Any] = [:],
+                      args: [Any]? = nil,
+                      kwargs: [String: Any]? = nil,
+                      using queue: DispatchQueue = .main) {
         if !self.isConnected() {
             debugPrint("[SwiftWamp.SwampSession.publish][ERROR] - You try to publish \(topic) but you're session id is nil")
             return
