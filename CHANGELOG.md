@@ -1,4 +1,8 @@
 # Change Log
+## [0.3.0](https://github.com/pitput/SwiftWamp/releases/tag/0.3.0)
+* Compatibility with latest swift version
+* Update dependencies
+
 ## [0.2.9](https://github.com/pitput/SwiftWamp/releases/tag/0.2.9)
 * Host code in github
 * Refactor code
