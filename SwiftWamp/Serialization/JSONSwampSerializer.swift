@@ -25,7 +25,7 @@ open class JSONSwampSerializer: SwampSerializer {
 
     open func unpack(_ data: Data) -> [Any]? {
         do {
-            try return JSON(data: data).arrayObject
+            return try JSON(data: data).arrayObject
         }
         catch {
             return nil
