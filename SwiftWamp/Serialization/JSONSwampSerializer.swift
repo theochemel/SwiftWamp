@@ -24,6 +24,11 @@ open class JSONSwampSerializer: SwampSerializer {
     }
 
     open func unpack(_ data: Data) -> [Any]? {
-        return JSON(data: data).arrayObject
+        do {
+            try return JSON(data: data).arrayObject
+        }
+        catch {
+            return nil
+        }
     }
 }
